@@ -28,8 +28,10 @@ namespace CGLibs {
 	public:
 	#pragma region PUBLIC
 		// Constant Declaration
-		static const int MARKER_SAMPLE = 0;
-		static const int MARKER_HIRO = 1;
+		static const int MARKER_HIRO = 0;
+		static const int MARKER_SAMPLE1 = 1;
+		static const int MARKER_SAMPLE2 = 2;
+		static const int MARKER_KANJI = 3;
 
 		// Initializes AR Toolkit
 		static void init(int *argc, char **argv);
@@ -40,7 +42,7 @@ namespace CGLibs {
 	private:
 	#pragma region PRIVATE_VARS
 		static string cam_data;
-		static string file_hiro, file_sample;
+		static string file_hiro, file_sample1, file_sample2, file_kanji;
 		static string v_conf;
 		static ARParam cparam;
 		static char *tmp_str_ptr;

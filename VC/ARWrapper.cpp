@@ -5,15 +5,14 @@
 #define RAD2DEG(x)	\
 	( (x) * 180 / PI )
 
-//const int ARWrapper::MARKER_HIRO;
-//const int ARWrapper::MARKER_SAMPLE;
-
 namespace CGLibs {
 #pragma region VARIABLES
 	char * ARWrapper::tmp_str_ptr;
 	string ARWrapper::cam_data;
 	string ARWrapper::file_hiro;
-	string ARWrapper::file_sample;
+	string ARWrapper::file_sample1;
+	string ARWrapper::file_sample2;
+	string ARWrapper::file_kanji;
 	ARParam ARWrapper::cparam;
 	string ARWrapper::v_conf;
 
@@ -39,7 +38,9 @@ namespace CGLibs {
 		tmp_str_ptr = NULL;
 		cam_data = "../Data/camera_para.dat";
 		file_hiro = "../Data/hiro.patt";
-		file_sample = "../Data/sample.patt";
+		file_sample1 = "../Data/sample1.patt";
+		file_sample2 = "../Data/sample2.patt";
+		file_kanji = "../Data/kanji.patt";
 		#ifdef _WIN32
 		v_conf = "../Data/WDM_camera_flipV.xml";
 		#else
@@ -87,10 +88,13 @@ namespace CGLibs {
 
 		// Loads patterns
 		patterns.push_back(Pattern(file_hiro));
-		patterns.push_back(Pattern(file_sample));
+		patterns.push_back(Pattern(file_sample1));
+		patterns.push_back(Pattern(file_sample2));
+		patterns.push_back(Pattern(file_kanji));
 	}
 	void ARWrapper::run() {
 		arVideoCapStart();
+		getchar();
 		argMainLoop(mouseFunc, keyFunc, loopFunc);
 	}
 	void ARWrapper::mouseFunc(int button, int state, int x, int y) {
@@ -190,7 +194,7 @@ namespace CGLibs {
 		c = RAD2DEG( asin(sc) );
 
 		renderOnPattern(pattern.getId(), gl_mat);
-		renderManually(pattern.getId(), x, y, z, a, b, c);
+		//renderManually(pattern.getId(), x, y, z, a, b, c);
 	}
 
 	void ARWrapper::renderOnPattern(int pattern_index, double *gl_mat) {
@@ -225,11 +229,23 @@ namespace CGLibs {
     
 		switch(pattern_index) {
 		case MARKER_HIRO:
+			glColor3f(1.0, 0.0, 0.0);
 			glutSolidCube(50.0);
 			break;
 
-		case MARKER_SAMPLE:
+		case MARKER_SAMPLE1:
+			glColor3f(0.0, 1.0, 0.0);
 			glutSolidTeapot(50.0);
+			break;
+
+		case MARKER_SAMPLE2:
+			glColor3f(0.0, 0.0, 1.0);
+			glutSolidCube(50.0);
+			break;
+
+		case MARKER_KANJI:
+			glColor3f(0.5, 0.5, 0.5);
+			glutSolidCube(50.0);
 			break;
 		}
 
@@ -274,10 +290,22 @@ namespace CGLibs {
     
 		switch(pattern_index) {
 		case MARKER_HIRO:
-			glutSolidTeapot(50.0);
+			glColor3f(1.0, 0.0, 0.0);
+			glutSolidCube(50.0);
 			break;
 
-		case MARKER_SAMPLE:
+		case MARKER_SAMPLE1:
+			glColor3f(0.0, 1.0, 0.0);
+			glutSolidCube(50.0);
+			break;
+
+		case MARKER_SAMPLE2:
+			glColor3f(0.0, 0.0, 1.0);
+			glutSolidCube(50.0);
+			break;
+
+		case MARKER_KANJI:
+			glColor3f(0.5, 0.5, 0.5);
 			glutSolidCube(50.0);
 			break;
 		}
