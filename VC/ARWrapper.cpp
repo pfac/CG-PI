@@ -150,15 +150,18 @@ namespace CGLibs {
 		//get OpenGL matrix
 		argConvGlpara(patt_trans, gl_mat);
 
-		cout << "pattern " << pattern.getId() << " detected" << endl;
-		cout << gl_mat[0] << " " << gl_mat[1] << " " << gl_mat[2] << " " << gl_mat[3] << endl;
-		cout << gl_mat[4] << " " << gl_mat[5] << " " << gl_mat[6] << " " << gl_mat[7] << endl;
-		cout << gl_mat[8] << " " << gl_mat[9] << " " << gl_mat[10] << " " << gl_mat[11] << endl;
-		cout << gl_mat[12] << " " << gl_mat[13] << " " << gl_mat[14] << " " << gl_mat[15] << endl;
+		/*cout << "pattern " << pattern.getId() << " detected" << endl;
+		cout << gl_mat[0] << " " << gl_mat[4] << " " << gl_mat[8] << " " << gl_mat[12] << endl;
+		cout << gl_mat[1] << " " << gl_mat[5] << " " << gl_mat[9] << " " << gl_mat[13] << endl;
+		cout << gl_mat[2] << " " << gl_mat[6] << " " << gl_mat[10] << " " << gl_mat[14] << endl;
+		cout << gl_mat[3] << " " << gl_mat[7] << " " << gl_mat[11] << " " << gl_mat[15] << endl;*/
 
 		/**
 		 * TODO CALCULAR AQUI AS COORDS DO OBJECTO A PARTIR DA MATRIZ GL
 		 */
+		if (gl_mat[12] != 0) {
+			cout << "X = (" << (int) gl_mat[12] << ", " << (int) gl_mat[13] << ", " << (int) gl_mat[14] << ")" << endl;
+		}
 		renderOnPattern(pattern.getId(), gl_mat);
 	}
 
@@ -189,7 +192,7 @@ namespace CGLibs {
 		glMaterialfv(GL_FRONT, GL_SPECULAR, mat_flash);
 		glMaterialfv(GL_FRONT, GL_SHININESS, mat_flash_shiny);	
 		glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
-		glMatrixMode(GL_MODELVIEW);
+		//glMatrixMode(GL_MODELVIEW);
 		glTranslatef(0.0, 0.0, 25.0);
     
 		switch(pattern_index) {
