@@ -1,5 +1,10 @@
 #include "ARWrapper.h"
 
+#define PI	3.1415926536
+
+#define RAD2DEG(x)	\
+	( (x) * 180 / PI )
+
 //const int ARWrapper::MARKER_HIRO;
 //const int ARWrapper::MARKER_SAMPLE;
 
@@ -162,7 +167,30 @@ namespace CGLibs {
 		if (gl_mat[12] != 0) {
 			cout << "X = (" << (int) gl_mat[12] << ", " << (int) gl_mat[13] << ", " << (int) gl_mat[14] << ")" << endl;
 		}
+
+		double x, y, z;/*	coordenadas do objecto	*/
+		double a, b, c;/*	ângulos de rotação nos eixos Ox, Oy e Oz, respectivamente	*/
+		double sa, ca;/*	sine and cosine of a	*/
+		double sb, cb;/*	sine and cosine of b	*/
+		double sc, cc;/*	sine and cosine of c	*/
+		
+		/* Posição */
+		x = gl_mat[12];		y = gl_mat[13];		z = gl_mat[14];
+		
+		/* Rotação, assumindo Rx, Ry, Rz	*/
+		sb = gl_mat[8];
+		cb = sqrt(1 - sb*sb);
+		sa = - ( gl_mat[9] / cb );
+		//ca = gl_mat[10] / cb;
+		sc = gl_mat[4] / cb;
+		//cc = gl_mat[0] / cb;
+
+		a = RAD2DEG( asin(sa) );
+		b = RAD2DEG( asin(sb) );
+		c = RAD2DEG( asin(sc) );
+
 		renderOnPattern(pattern.getId(), gl_mat);
+		renderManually(pattern.getId(), x, y, z, a, b, c);
 	}
 
 	void ARWrapper::renderOnPattern(int pattern_index, double *gl_mat) {
@@ -202,6 +230,55 @@ namespace CGLibs {
 
 		case MARKER_SAMPLE:
 			glutSolidTeapot(50.0);
+			break;
+		}
+
+		glDisable(GL_LIGHTING);
+		glDisable( GL_DEPTH_TEST );
+	}
+
+	void ARWrapper::renderManually(int pattern_index, double x, double y, double z, double a, double b, double c) {
+		GLfloat   mat_ambient[]     = {0.0, 0.0, 1.0, 1.0};
+		GLfloat   mat_flash[]       = {0.0, 0.0, 1.0, 1.0};
+		GLfloat   mat_flash_shiny[] = {50.0};
+		GLfloat   light_position[]  = {100.0,-200.0,200.0,0.0};
+		GLfloat   ambi[]            = {0.1, 0.1, 0.1, 0.1};
+		GLfloat   lightZeroColor[]  = {0.9, 0.9, 0.9, 0.1};
+
+		argDrawMode3D();
+		argDraw3dCamera(0, 0);
+		glClearDepth(1.0);
+		glClear(GL_DEPTH_BUFFER_BIT);
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LEQUAL);
+    
+		// load the camera transformation matrix
+		//glMatrixMode(GL_MODELVIEW);
+		//glLoadMatrixd(gl_mat);
+		/*	transformations are performed in the reverse order	*/
+		glRotatef(c, 0, 0, 1);
+		glRotatef(b, 0, 1, 0);
+		glRotatef(a, 1, 0, 0);
+		glTranslatef(x,y,z);
+
+		glEnable(GL_LIGHTING);
+		glEnable(GL_LIGHT0);
+		glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+		glLightfv(GL_LIGHT0, GL_AMBIENT, ambi);
+		glLightfv(GL_LIGHT0, GL_DIFFUSE, lightZeroColor);
+		glMaterialfv(GL_FRONT, GL_SPECULAR, mat_flash);
+		glMaterialfv(GL_FRONT, GL_SHININESS, mat_flash_shiny);	
+		glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
+		glMatrixMode(GL_MODELVIEW);
+		glTranslatef(0.0, 0.0, 25.0);
+    
+		switch(pattern_index) {
+		case MARKER_HIRO:
+			glutSolidTeapot(50.0);
+			break;
+
+		case MARKER_SAMPLE:
+			glutSolidCube(50.0);
 			break;
 		}
 

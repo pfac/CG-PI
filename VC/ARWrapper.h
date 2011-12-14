@@ -71,6 +71,7 @@ namespace CGLibs {
 		static void cleanup();
 		static void markerDetected(Pattern pattern, ARMarkerInfo marker);
 		static void renderOnPattern(int pattern_id, double *gl_mat);
+		static void renderManually(int pattern_index, double x, double y, double z, double a, double b, double c);
 
 		// Drawing Function
 		static void drawOnMarker(int marker);
