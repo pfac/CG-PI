@@ -255,11 +255,11 @@ namespace CGLibs {
 		// load the camera transformation matrix
 		//glMatrixMode(GL_MODELVIEW);
 		//glLoadMatrixd(gl_mat);
-		/*	transformations are performed in the reverse order	*/
-		glRotatef(c, 0, 0, 1);
-		glRotatef(b, 0, 1, 0);
-		glRotatef(a, 1, 0, 0);
+
 		glTranslatef(x,y,z);
+		glRotatef(a, 1, 0, 0);
+		glRotatef(b, 0, 1, 0);
+		glRotatef(c, 0, 0, 1);
 
 		glEnable(GL_LIGHTING);
 		glEnable(GL_LIGHT0);
