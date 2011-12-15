@@ -1,6 +1,5 @@
 Thumbs.db
 *.obj
-*.exe
 *.pdb
 *.user
 *.aps
@@ -25,6 +24,6 @@ Thumbs.db
 *.sdf
 ipch/
 obj/
-[Rr]elease*/
+VC/[rR]elease*/
 _ReSharper*/
 [Tt]est[Rr]esult*

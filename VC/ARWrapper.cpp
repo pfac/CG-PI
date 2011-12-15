@@ -2,19 +2,6 @@
 
 #include <cstdio>
 
-#include <iomanip>
-//#include <boost\numeric\ublas\matrix.hpp>
-//#include <boost\numeric\ublas\vector.hpp>
-
-#include "invertmatrix.hpp"
-#include "latk.h"
-
-//namespace ublas = boost::numeric::ublas;
-
-//using ublas::matrix;
-
-#define COLW	15
-
 #define PI	3.1415926536
 
 #define RAD2DEG(x)	\
@@ -112,7 +99,6 @@ namespace CGLibs {
 	/// <summary>Starts the video capture and the application main loop.</summary>
 	void ARWrapper::run() {
 		arVideoCapStart();
-		getchar();
 		argMainLoop(mouseFunc, keyFunc, loopFunc);
 	}
 
