@@ -1,5 +1,20 @@
 #include "ARWrapper.h"
 
+#include <cstdio>
+
+#include <iomanip>
+//#include <boost\numeric\ublas\matrix.hpp>
+//#include <boost\numeric\ublas\vector.hpp>
+
+#include "invertmatrix.hpp"
+#include "latk.h"
+
+//namespace ublas = boost::numeric::ublas;
+
+//using ublas::matrix;
+
+#define COLW	15
+
 #define PI	3.1415926536
 
 #define RAD2DEG(x)	\
@@ -154,43 +169,85 @@ namespace CGLibs {
 
 		//get OpenGL matrix
 		argConvGlpara(patt_trans, gl_mat);
+		double rot[3][3];
+		arGetInitRot(&marker, patt_trans, rot);
 
-		/*cout << "pattern " << pattern.getId() << " detected" << endl;
-		cout << gl_mat[0] << " " << gl_mat[4] << " " << gl_mat[8] << " " << gl_mat[12] << endl;
-		cout << gl_mat[1] << " " << gl_mat[5] << " " << gl_mat[9] << " " << gl_mat[13] << endl;
-		cout << gl_mat[2] << " " << gl_mat[6] << " " << gl_mat[10] << " " << gl_mat[14] << endl;
-		cout << gl_mat[3] << " " << gl_mat[7] << " " << gl_mat[11] << " " << gl_mat[15] << endl;*/
+		
 
 		/**
 		 * TODO CALCULAR AQUI AS COORDS DO OBJECTO A PARTIR DA MATRIZ GL
 		 */
-		if (gl_mat[12] != 0) {
-			cout << "X = (" << (int) gl_mat[12] << ", " << (int) gl_mat[13] << ", " << (int) gl_mat[14] << ")" << endl;
+
+		double x, y, z;/*	Pattern position	*/
+		double a, b, c;/*	Pattern Euler angles	*/
+		extractTransModelView(gl_mat, &x, &y, &z, &a, &b, &c);
+		double rfYAng, rfZAng, rfXAng;
+		int gimbalLock = 0;
+		if (gl_mat[2] < 0.995) {
+			if (gl_mat[2] > -0.995)  {
+				// y_angulo = asin(-r20)
+				// z_angulo = atan2(r10,r00)
+				// x_angulo = atan2(r21,r22)
+				rfYAng = asin(-gl_mat[2]);
+				rfZAng = atan2(gl_mat[1],gl_mat[0]);
+				rfXAng = atan2(gl_mat[6],gl_mat[10]);
+			} else {
+				// y_angulo = +pi/2
+				// x_angulo + z_angulo = atan2(r01,r02)
+				// NOTA.  La solución no es unica.  Tomamos x_angulo = 0.
+				rfYAng = PI/2;
+				rfZAng = -atan2(gl_mat[4],gl_mat[8]);
+				rfXAng = 0.0;
+				gimbalLock = 1;
+			}
+		} else {
+			// y_angulo = -pi/2
+			// x_angulo + z_angulo = atan2(-r01,-r02)
+			// NOTA.  La solución no es unica.  Tomamos x_angulo = 0.
+			rfYAng = -PI/2;
+			rfZAng = atan2(-gl_mat[4],-gl_mat[8]);
+			rfXAng = 0.0;
+			gimbalLock = 2;
 		}
 
-		double x, y, z;/*	coordenadas do objecto	*/
-		double a, b, c;/*	ângulos de rotação nos eixos Ox, Oy e Oz, respectivamente	*/
-		double sa, ca;/*	sine and cosine of a	*/
-		double sb, cb;/*	sine and cosine of b	*/
-		double sc, cc;/*	sine and cosine of c	*/
-		
-		/* Posição */
-		x = gl_mat[12];		y = gl_mat[13];		z = gl_mat[14];
-		
-		/* Rotação, assumindo Rx, Ry, Rz	*/
-		sb = gl_mat[8];
-		cb = sqrt(1 - sb*sb);
-		sa = - ( gl_mat[9] / cb );
-		//ca = gl_mat[10] / cb;
-		sc = gl_mat[4] / cb;
-		//cc = gl_mat[0] / cb;
+		a=RAD2DEG(rfXAng);
+		b=-RAD2DEG(rfYAng);
+		c=-RAD2DEG(rfZAng);
 
-		a = RAD2DEG( asin(sa) );
-		b = RAD2DEG( asin(sb) );
-		c = RAD2DEG( asin(sc) );
-
+		//arGetAngle(rot, &a, &b, &c);
+		//a = RAD2DEG(a);
+		//b = RAD2DEG(b);
+		//c = RAD2DEG(c);
+		cout << a << " " << b << " " << c << endl;
+		
 		renderOnPattern(pattern.getId(), gl_mat);
+	
 		renderManually(pattern.getId(), x, y, z, a, b, c);
+	}
+
+	void ARWrapper::extractTransModelView(double gl_mat[16], double *x, double *y, double *z, double *a, double *b, double *c)
+	{
+		double sa, ca, ta;
+		double sb, cb;
+		double sc, cc, tc;
+
+		/*	RzRyRx rotation matrix	*/
+		sb = - gl_mat[2];
+
+		tc = gl_mat[1] / gl_mat[0];
+		ta = gl_mat[6] / gl_mat[10];
+
+		/*	angles	*/
+		*a = RAD2DEG( atan(ta) );
+		*b = RAD2DEG( asin(sb) );
+		*c = RAD2DEG( atan(tc) );
+
+		/*	positions	*/
+		*x = gl_mat[12];
+		*y = gl_mat[13];
+		*z = gl_mat[14];
+
+		
 	}
 
 	void ARWrapper::renderOnPattern(int pattern_index, double *gl_mat) {
@@ -221,7 +278,7 @@ namespace CGLibs {
 		glMaterialfv(GL_FRONT, GL_SHININESS, mat_flash_shiny);	
 		glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
 		//glMatrixMode(GL_MODELVIEW);
-		glTranslatef(0.0, 0.0, 25.0);
+		//glTranslatef(0.0, 0.0, 25.0);
     
 		switch(pattern_index) {
 		case MARKER_HIRO:
@@ -238,8 +295,8 @@ namespace CGLibs {
 	}
 
 	void ARWrapper::renderManually(int pattern_index, double x, double y, double z, double a, double b, double c) {
-		GLfloat   mat_ambient[]     = {0.0, 0.0, 1.0, 1.0};
-		GLfloat   mat_flash[]       = {0.0, 0.0, 1.0, 1.0};
+		GLfloat   mat_ambient[]     = {0.0, 1.0, 0.0, 1.0};
+		GLfloat   mat_flash[]       = {0.0, 1.0, 0.0, 1.0};
 		GLfloat   mat_flash_shiny[] = {50.0};
 		GLfloat   light_position[]  = {100.0,-200.0,200.0,0.0};
 		GLfloat   ambi[]            = {0.1, 0.1, 0.1, 0.1};
@@ -253,14 +310,16 @@ namespace CGLibs {
 		glDepthFunc(GL_LEQUAL);
     
 		// load the camera transformation matrix
-		//glMatrixMode(GL_MODELVIEW);
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
 		//glLoadMatrixd(gl_mat);
 
 		glTranslatef(x,y,z);
-		glRotatef(a, 1, 0, 0);
+		glRotatef(a, 1, 0, 0);/* flip it vertically	*/
 		glRotatef(b, 0, 1, 0);
 		glRotatef(c, 0, 0, 1);
-
+		//glRotatef(180,1,0,0);
+		
 		glEnable(GL_LIGHTING);
 		glEnable(GL_LIGHT0);
 		glLightfv(GL_LIGHT0, GL_POSITION, light_position);
@@ -270,15 +329,15 @@ namespace CGLibs {
 		glMaterialfv(GL_FRONT, GL_SHININESS, mat_flash_shiny);	
 		glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
 		glMatrixMode(GL_MODELVIEW);
-		glTranslatef(0.0, 0.0, 25.0);
+		//glTranslatef(0.0, 0.0,-25.0);
     
 		switch(pattern_index) {
 		case MARKER_HIRO:
-			glutSolidTeapot(50.0);
+			glutSolidCube(50.0);
 			break;
 
 		case MARKER_SAMPLE:
-			glutSolidCube(50.0);
+			glutSolidTeapot(50.0);
 			break;
 		}
 
@@ -293,79 +352,7 @@ namespace CGLibs {
 
 		if (tmp_str_ptr != NULL) free(tmp_str_ptr);
 	}
-	void ARWrapper::drawCube() {
-		double    gl_para[16];
-		GLfloat   mat_ambient[]     = {0.0, 0.0, 1.0, 1.0};
-		GLfloat   mat_flash[]       = {0.0, 0.0, 1.0, 1.0};
-		GLfloat   mat_flash_shiny[] = {50.0};
-		GLfloat   light_position[]  = {100.0,-200.0,200.0,0.0};
-		GLfloat   ambi[]            = {0.1, 0.1, 0.1, 0.1};
-		GLfloat   lightZeroColor[]  = {0.9, 0.9, 0.9, 0.1};
-    
-		argDrawMode3D();
-		argDraw3dCamera(0, 0);
-		glClearDepth(1.0);
-		glClear(GL_DEPTH_BUFFER_BIT);
-		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_LEQUAL);
-    
-		/* load the camera transformation matrix */
-		argConvGlpara(patt_trans, gl_para);
-		glMatrixMode(GL_MODELVIEW);
-		glLoadMatrixd(gl_para);
-
-		glEnable(GL_LIGHTING);
-		glEnable(GL_LIGHT0);
-		glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-		glLightfv(GL_LIGHT0, GL_AMBIENT, ambi);
-		glLightfv(GL_LIGHT0, GL_DIFFUSE, lightZeroColor);
-		glMaterialfv(GL_FRONT, GL_SPECULAR, mat_flash);
-		glMaterialfv(GL_FRONT, GL_SHININESS, mat_flash_shiny);	
-		glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
-		glMatrixMode(GL_MODELVIEW);
-		glTranslatef( 0.0, 0.0, 25.0 );
-		glutSolidCube(50.0);
-		glDisable( GL_LIGHTING );
-
-		glDisable( GL_DEPTH_TEST );
-	}
-	void ARWrapper::drawTeapot() {
-		double    gl_para[16];
-		GLfloat   mat_ambient[]     = {0.0, 0.0, 1.0, 1.0};
-		GLfloat   mat_flash[]       = {0.0, 0.0, 1.0, 1.0};
-		GLfloat   mat_flash_shiny[] = {50.0};
-		GLfloat   light_position[]  = {100.0,-200.0,200.0,0.0};
-		GLfloat   ambi[]            = {0.1, 0.1, 0.1, 0.1};
-		GLfloat   lightZeroColor[]  = {0.9, 0.9, 0.9, 0.1};
-    
-		argDrawMode3D();
-		argDraw3dCamera(0, 0);
-		glClearDepth(1.0);
-		glClear(GL_DEPTH_BUFFER_BIT);
-		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_LEQUAL);
-    
-		/* load the camera transformation matrix */
-		argConvGlpara(patt_trans, gl_para);
-		glMatrixMode(GL_MODELVIEW);
-		glLoadMatrixd(gl_para);
-
-		glEnable(GL_LIGHTING);
-		glEnable(GL_LIGHT0);
-		glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-		glLightfv(GL_LIGHT0, GL_AMBIENT, ambi);
-		glLightfv(GL_LIGHT0, GL_DIFFUSE, lightZeroColor);
-		glMaterialfv(GL_FRONT, GL_SPECULAR, mat_flash);
-		glMaterialfv(GL_FRONT, GL_SHININESS, mat_flash_shiny);	
-		glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
-		glMatrixMode(GL_MODELVIEW);
-		glTranslatef(0.0, 0.0, 25.0);
-		//glRotatef(90, 1, 0, 0);
-		glutSolidTeapot(50.0);
-		glDisable(GL_LIGHTING);
-
-		glDisable( GL_DEPTH_TEST );
-	}
+	
 	char * ARWrapper::tmp_str(string cpp_str) {
 		if (tmp_str_ptr != NULL) free(tmp_str_ptr);
 		tmp_str_ptr = _strdup(cpp_str.c_str());

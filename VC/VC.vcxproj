@@ -63,12 +63,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="latk.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ARWrapper.cpp" />
     <ClCompile Include="Pattern.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ARWrapper.h" />
+    <ClInclude Include="invertmatrix.hpp" />
+    <ClInclude Include="latk.h" />
+    <ClInclude Include="latk.hpp" />
     <ClInclude Include="Pattern.h" />
   </ItemGroup>
   <ItemGroup>
