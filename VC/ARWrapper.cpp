@@ -233,6 +233,9 @@ namespace CGLibs {
 		*z = gl_mat[14];
 	}
 
+	///	<summary>Main rendering function. Calls <see cref="renderAuto" /> for the automatically set object and <see cref="renderManual" /> for the manually positioned and oriented object. Information is extracted through <see cref="extractTransModelView" />.</summary>
+	///	<param name="pattern_index">Index of the matched pattern, on which to render</param>
+	///	<param name="gl_mat">OpenGL ModelView transformation homogeneous 4x4 matrix, in a column-major array, as conventioned in OpenGL</param>
 	void ARWrapper::render (int pattern_index, double *gl_mat)
 	{
 		double x, y, z;/*	Pattern position	*/
@@ -246,6 +249,9 @@ namespace CGLibs {
 		renderManual(pattern_index, x, y, z, a, b, c);
 	}
 
+	///	<summary>Renders an automatically positioned and oriented object, by loading a given OpenGL ModelView matrix.</summary>
+	///	<param name="pattern_index">Index of the matched pattern, on which to render</param>
+	///	<param name="gl_mat">OpenGL ModelView transformation homogeneous 4x4 matrix, in a column-major array, as conventioned in OpenGL</param>
 	void ARWrapper::renderAuto(int pattern_index, double *gl_mat) {
 		GLfloat   mat_ambient[]     = {0.0, 0.0, 1.0, 1.0};
 		GLfloat   mat_flash[]       = {0.0, 0.0, 1.0, 1.0};
@@ -288,6 +294,14 @@ namespace CGLibs {
 		glDisable( GL_DEPTH_TEST );
 	}
 
+	///	<summary>Renders a manually positioned and oriented object, using explicitly given information. The information required for this can be obtained from <see cref="extractTransModelView" />.</summary>
+	///	<param name="pattern_index">Index of the matched pattern, on which to render</param>
+	///	<param name="x">Value of the first component of the position.</param>
+	///	<param name="y">Value of the second component of the position.</param>
+	///	<param name="z">Value of the third component of the position.</param>
+	///	<param name="a">Value of the counter-clockwise rotation angle around the x axis.</param>
+	/// <param name="b">Value of the counter-clockwise rotation angle around the y axis.</param>
+	///	<param name="c">Value of the counter-clockwise rotation angle around the z axis.</param>
 	void ARWrapper::renderManual(int pattern_index, double x, double y, double z, double a, double b, double c) {
 		GLfloat   mat_ambient[]     = {0.0, 1.0, 0.0, 1.0};
 		GLfloat   mat_flash[]       = {0.0, 1.0, 0.0, 1.0};
@@ -329,6 +343,7 @@ namespace CGLibs {
 		glDisable( GL_DEPTH_TEST );
 	}
 
+	///	<summary>Begins the process of termination by stopping the video capture and closing it, and calling the appropriate functions to release any other allocated resources.</summary>
 	void ARWrapper::cleanup() {
 		arVideoCapStop();
 		arVideoClose();
@@ -337,6 +352,7 @@ namespace CGLibs {
 		if (tmp_str_ptr != NULL) free(tmp_str_ptr);
 	}
 	
+	///	<summary>Auxiliary function to convert from C++ strings to ansi-C strings.</summary>
 	char * ARWrapper::tmp_str(string cpp_str) {
 		if (tmp_str_ptr != NULL) free(tmp_str_ptr);
 		tmp_str_ptr = _strdup(cpp_str.c_str());
