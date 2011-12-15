@@ -28,8 +28,10 @@ namespace CGLibs {
 	public:
 	#pragma region PUBLIC
 		// Constant Declaration
-		static const int MARKER_SAMPLE = 0;
-		static const int MARKER_HIRO = 1;
+		static const int MARKER_HIRO = 0;
+		static const int MARKER_SAMPLE1 = 1;
+		static const int MARKER_SAMPLE2 = 2;
+		static const int MARKER_KANJI = 3;
 
 		// Initializes AR Toolkit
 		static void init(int *argc, char **argv);
@@ -40,7 +42,7 @@ namespace CGLibs {
 	private:
 	#pragma region PRIVATE_VARS
 		static string cam_data;
-		static string file_hiro, file_sample;
+		static string file_hiro, file_sample1, file_sample2, file_kanji;
 		static string v_conf;
 		static ARParam cparam;
 		static char *tmp_str_ptr;
@@ -70,14 +72,17 @@ namespace CGLibs {
 		static void loopFunc();
 		static void cleanup();
 		static void markerDetected(Pattern pattern, ARMarkerInfo marker);
-		static void renderOnPattern(int pattern_id, double *gl_mat);
-		static void renderManually(int pattern_index, double x, double y, double z, double a, double b, double c);
+		/*static void renderOnPattern(int pattern_id, double *gl_mat);
+		static void renderManually(int pattern_index, double x, double y, double z, double a, double b, double c);*/
 		static void extractTransModelView(double gl_mat[16], double *x, double *y, double *z, double *a, double *b, double *c);
+		static void render (int pattern_index, double *gl_mat, double x, double y, double z, double a, double b, double c);
+		static void renderAuto(int pattern_index, double *gl_mat);
+		static void renderManual(int pattern_index, double x, double y, double z, double a, double b, double c);
 
 		// Drawing Function
 		static void drawOnMarker(int marker);
-		static void drawCube();
-		static void drawTeapot();
+		//static void drawCube();
+		//static void drawTeapot();
 	
 		// Mouse Function
 		static void mouseFunc(int button, int state, int x, int y);

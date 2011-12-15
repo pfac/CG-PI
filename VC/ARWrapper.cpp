@@ -1,19 +1,33 @@
 #include "ARWrapper.h"
 
+#include <cstdio>
+
+#include <iomanip>
+//#include <boost\numeric\ublas\matrix.hpp>
+//#include <boost\numeric\ublas\vector.hpp>
+
+#include "invertmatrix.hpp"
+#include "latk.h"
+
+//namespace ublas = boost::numeric::ublas;
+
+//using ublas::matrix;
+
+#define COLW	15
+
 #define PI	3.1415926536
 
 #define RAD2DEG(x)	\
 	( (x) * 180 / PI )
-
-//const int ARWrapper::MARKER_HIRO;
-//const int ARWrapper::MARKER_SAMPLE;
 
 namespace CGLibs {
 #pragma region VARIABLES
 	char * ARWrapper::tmp_str_ptr;
 	string ARWrapper::cam_data;
 	string ARWrapper::file_hiro;
-	string ARWrapper::file_sample;
+	string ARWrapper::file_sample1;
+	string ARWrapper::file_sample2;
+	string ARWrapper::file_kanji;
 	ARParam ARWrapper::cparam;
 	string ARWrapper::v_conf;
 
@@ -40,7 +54,9 @@ namespace CGLibs {
 		tmp_str_ptr = NULL;
 		cam_data = "../Data/camera_para.dat";
 		file_hiro = "../Data/hiro.patt";
-		file_sample = "../Data/sample.patt";
+		file_sample1 = "../Data/sample1.patt";
+		file_sample2 = "../Data/sample2.patt";
+		file_kanji = "../Data/kanji.patt";
 		#ifdef _WIN32
 		v_conf = "../Data/WDM_camera_flipV.xml";
 		#else
@@ -88,12 +104,15 @@ namespace CGLibs {
 
 		// Loads patterns
 		patterns.push_back(Pattern(file_hiro));
-		patterns.push_back(Pattern(file_sample));
+		patterns.push_back(Pattern(file_sample1));
+		patterns.push_back(Pattern(file_sample2));
+		patterns.push_back(Pattern(file_kanji));
 	}
 
 	/// <summary>Starts the video capture and the application main loop.</summary>
 	void ARWrapper::run() {
 		arVideoCapStart();
+		getchar();
 		argMainLoop(mouseFunc, keyFunc, loopFunc);
 	}
 
@@ -177,6 +196,8 @@ namespace CGLibs {
 
 		//get OpenGL matrix
 		argConvGlpara(patt_trans, gl_mat);
+		double rot[3][3];
+		arGetInitRot(&marker, patt_trans, rot);
 
 		double x, y, z;/*	Pattern position	*/
 		double a, b, c;/*	Pattern Euler angles	*/
@@ -215,9 +236,12 @@ namespace CGLibs {
 		b=RAD2DEG(rfYAng);
 		c=RAD2DEG(rfZAng);
 		
+		/*
 		renderOnPattern(pattern.getId(), gl_mat);
 	
 		renderManually(pattern.getId(), x, y, z, a, b, c);
+		*/
+		render(pattern.getId(), gl_mat, x, y, z, a, b, c);
 	}
 
 	///	<summary>Extracts transformations from the ModelView matrix (usually obtained automatically).</summary>
@@ -249,11 +273,18 @@ namespace CGLibs {
 		*x = gl_mat[12];
 		*y = gl_mat[13];
 		*z = gl_mat[14];
-
-		
 	}
 
-	void ARWrapper::render (int pattern_index, double *gl_mat) {
+	void ARWrapper::render (int pattern_index, double *gl_mat, double x, double y, double z, double a, double b, double c)
+	{
+		/*	render object	*/
+		renderAuto(pattern_index, gl_mat);
+		renderManual(pattern_index, x,y,z,a,b,c);
+	}
+
+	void ARWrapper::renderAuto(int pattern_index, double *gl_mat) {
+		GLfloat   mat_ambient[]     = {0.0, 0.0, 1.0, 1.0};
+		GLfloat   mat_flash[]       = {0.0, 0.0, 1.0, 1.0};
 		GLfloat   mat_flash_shiny[] = {50.0};
 		GLfloat   light_position[]  = {100.0,-200.0,200.0,0.0};
 		GLfloat   ambi[]            = {0.1, 0.1, 0.1, 0.1};
@@ -266,7 +297,8 @@ namespace CGLibs {
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LEQUAL);
 
-		/*	render object	*/
+		glMatrixMode(GL_MODELVIEW);
+		glLoadMatrixd(gl_mat);
 
 		glEnable(GL_LIGHTING);
 		glEnable(GL_LIGHT0);
@@ -276,14 +308,15 @@ namespace CGLibs {
 		glMaterialfv(GL_FRONT, GL_SPECULAR, mat_flash);
 		glMaterialfv(GL_FRONT, GL_SHININESS, mat_flash_shiny);	
 		glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
-
+    
 		switch(pattern_index) {
 			case MARKER_HIRO:
-				glutSolidCube(50.0);
-				break;
-
-			case MARKER_SAMPLE:
+				glColor3f(1.0, 0.0, 0.0);
 				glutSolidTeapot(50.0);
+				break;
+			case MARKER_SAMPLE2:
+				glColor3f(0.0, 0.0, 1.0);
+				glutSolidCube(50.0);
 				break;
 		}
 
@@ -291,29 +324,23 @@ namespace CGLibs {
 		glDisable( GL_DEPTH_TEST );
 	}
 
-
-	void ARWrapper::renderAuto(double *gl_mat) {
-		GLfloat   mat_ambient[]     = {0.0, 0.0, 1.0, 1.0};
-		GLfloat   mat_flash[]       = {0.0, 0.0, 1.0, 1.0};
-
-		// load the camera transformation matrix
-		glMatrixMode(GL_MODELVIEW);
-		glLoadMatrixd(gl_mat);
-		glTranslatef(0.0, 0.0, 25.0);
-	}
-
 	void ARWrapper::renderManual(int pattern_index, double x, double y, double z, double a, double b, double c) {
 		GLfloat   mat_ambient[]     = {0.0, 1.0, 0.0, 1.0};
 		GLfloat   mat_flash[]       = {0.0, 1.0, 0.0, 1.0};
+		GLfloat   mat_flash_shiny[] = {50.0};
+		GLfloat   light_position[]  = {100.0,-200.0,200.0,0.0};
+		GLfloat   ambi[]            = {0.1, 0.1, 0.1, 0.1};
+		GLfloat   lightZeroColor[]  = {0.9, 0.9, 0.9, 0.1};
     
 		// load the camera transformation matrix
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 		glTranslatef(x,y,z);
-		glRotatef(a, 1, 0, 0);
+		glRotatef(a, 1, 0, 0);/* flip it vertically	*/
 		glRotatef(b, 0, 1, 0);
 		glRotatef(c, 0, 0, 1);
-		
+		//glRotatef(180,1,0,0);
+
 		glEnable(GL_LIGHTING);
 		glEnable(GL_LIGHT0);
 		glLightfv(GL_LIGHT0, GL_POSITION, light_position);
@@ -322,17 +349,16 @@ namespace CGLibs {
 		glMaterialfv(GL_FRONT, GL_SPECULAR, mat_flash);
 		glMaterialfv(GL_FRONT, GL_SHININESS, mat_flash_shiny);	
 		glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
-		glMatrixMode(GL_MODELVIEW);
-		//glTranslatef(0.0, 0.0,-25.0);
     
 		switch(pattern_index) {
-		case MARKER_HIRO:
-			glutSolidCube(50.0);
-			break;
-
-		case MARKER_SAMPLE:
-			glutSolidTeapot(50.0);
-			break;
+			case MARKER_HIRO:
+				glColor3f(1.0, 0.0, 0.0);
+				glutSolidTeapot(50.0);
+				break;
+			case MARKER_SAMPLE2:
+				glColor3f(0.0, 0.0, 1.0);
+				glutSolidCube(50.0);
+				break;
 		}
 
 		glDisable(GL_LIGHTING);
@@ -346,79 +372,7 @@ namespace CGLibs {
 
 		if (tmp_str_ptr != NULL) free(tmp_str_ptr);
 	}
-	void ARWrapper::drawCube() {
-		double    gl_para[16];
-		GLfloat   mat_ambient[]     = {0.0, 0.0, 1.0, 1.0};
-		GLfloat   mat_flash[]       = {0.0, 0.0, 1.0, 1.0};
-		GLfloat   mat_flash_shiny[] = {50.0};
-		GLfloat   light_position[]  = {100.0,-200.0,200.0,0.0};
-		GLfloat   ambi[]            = {0.1, 0.1, 0.1, 0.1};
-		GLfloat   lightZeroColor[]  = {0.9, 0.9, 0.9, 0.1};
-    
-		argDrawMode3D();
-		argDraw3dCamera(0, 0);
-		glClearDepth(1.0);
-		glClear(GL_DEPTH_BUFFER_BIT);
-		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_LEQUAL);
-    
-		/* load the camera transformation matrix */
-		argConvGlpara(patt_trans, gl_para);
-		glMatrixMode(GL_MODELVIEW);
-		glLoadMatrixd(gl_para);
-
-		glEnable(GL_LIGHTING);
-		glEnable(GL_LIGHT0);
-		glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-		glLightfv(GL_LIGHT0, GL_AMBIENT, ambi);
-		glLightfv(GL_LIGHT0, GL_DIFFUSE, lightZeroColor);
-		glMaterialfv(GL_FRONT, GL_SPECULAR, mat_flash);
-		glMaterialfv(GL_FRONT, GL_SHININESS, mat_flash_shiny);	
-		glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
-		glMatrixMode(GL_MODELVIEW);
-		glTranslatef( 0.0, 0.0, 25.0 );
-		glutSolidCube(50.0);
-		glDisable( GL_LIGHTING );
-
-		glDisable( GL_DEPTH_TEST );
-	}
-	void ARWrapper::drawTeapot() {
-		double    gl_para[16];
-		GLfloat   mat_ambient[]     = {0.0, 0.0, 1.0, 1.0};
-		GLfloat   mat_flash[]       = {0.0, 0.0, 1.0, 1.0};
-		GLfloat   mat_flash_shiny[] = {50.0};
-		GLfloat   light_position[]  = {100.0,-200.0,200.0,0.0};
-		GLfloat   ambi[]            = {0.1, 0.1, 0.1, 0.1};
-		GLfloat   lightZeroColor[]  = {0.9, 0.9, 0.9, 0.1};
-    
-		argDrawMode3D();
-		argDraw3dCamera(0, 0);
-		glClearDepth(1.0);
-		glClear(GL_DEPTH_BUFFER_BIT);
-		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_LEQUAL);
-    
-		/* load the camera transformation matrix */
-		argConvGlpara(patt_trans, gl_para);
-		glMatrixMode(GL_MODELVIEW);
-		glLoadMatrixd(gl_para);
-
-		glEnable(GL_LIGHTING);
-		glEnable(GL_LIGHT0);
-		glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-		glLightfv(GL_LIGHT0, GL_AMBIENT, ambi);
-		glLightfv(GL_LIGHT0, GL_DIFFUSE, lightZeroColor);
-		glMaterialfv(GL_FRONT, GL_SPECULAR, mat_flash);
-		glMaterialfv(GL_FRONT, GL_SHININESS, mat_flash_shiny);	
-		glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
-		glMatrixMode(GL_MODELVIEW);
-		glTranslatef(0.0, 0.0, 25.0);
-		//glRotatef(90, 1, 0, 0);
-		glutSolidTeapot(50.0);
-		glDisable(GL_LIGHTING);
-
-		glDisable( GL_DEPTH_TEST );
-	}
+	
 	char * ARWrapper::tmp_str(string cpp_str) {
 		if (tmp_str_ptr != NULL) free(tmp_str_ptr);
 		tmp_str_ptr = _strdup(cpp_str.c_str());
