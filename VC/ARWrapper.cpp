@@ -2,6 +2,16 @@
 
 #include <cstdio>
 
+#include <iomanip>
+//#include <boost\numeric\ublas\matrix.hpp>
+//#include <boost\numeric\ublas\vector.hpp>
+
+#include "invertmatrix.hpp"
+#include "latk.h"
+
+//namespace ublas = boost::numeric::ublas;
+
+//using ublas::matrix;
 
 #define COLW	15
 
@@ -102,6 +112,7 @@ namespace CGLibs {
 	/// <summary>Starts the video capture and the application main loop.</summary>
 	void ARWrapper::run() {
 		arVideoCapStart();
+		getchar();
 		argMainLoop(mouseFunc, keyFunc, loopFunc);
 	}
 
@@ -185,12 +196,10 @@ namespace CGLibs {
 
 		//get OpenGL matrix
 		argConvGlpara(patt_trans, gl_mat);
-
-		double x, y, z;/*	Pattern position	*/
-		double a, b, c;/*	Pattern Euler angles	*/
-		extractTransModelView(gl_mat, &x, &y, &z, &a, &b, &c);
-
-		render(pattern.getId(), gl_mat, x, y, z, a, b, c);
+		double rot[3][3];
+		arGetInitRot(&marker, patt_trans, rot);
+		
+		render(pattern.getId(), gl_mat);
 	}
 
 	///	<summary>Extracts transformations from the ModelView matrix (usually obtained automatically).</summary>
@@ -203,9 +212,9 @@ namespace CGLibs {
 	///	<param name="c">Reference to return the counter-clockwise rotation angle around the z axis.</param>
 	void ARWrapper::extractTransModelView(double gl_mat[16], double *x, double *y, double *z, double *a, double *b, double *c)
 	{
-		double ta;
-		double sb;
-		double tc;
+		double sa, ca, ta;
+		double sb, cb;
+		double sc, cc, tc;
 
 		/*	RzRyRx rotation matrix	*/
 		sb = - gl_mat[2];
@@ -224,11 +233,17 @@ namespace CGLibs {
 		*z = gl_mat[14];
 	}
 
-	void ARWrapper::render (int pattern_index, double *gl_mat, double x, double y, double z, double a, double b, double c)
+	void ARWrapper::render (int pattern_index, double *gl_mat)
 	{
+		double x, y, z;/*	Pattern position	*/
+		double a, b, c;/*	Pattern Euler angles	*/
+
+		/*	information extraction	*/
+		extractTransModelView(gl_mat, &x, &y, &z, &a, &b, &c);
+
 		/*	render object	*/
 		renderAuto(pattern_index, gl_mat);
-		renderManual(pattern_index, x,y,z,a,b,c);
+		renderManual(pattern_index, x, y, z, a, b, c);
 	}
 
 	void ARWrapper::renderAuto(int pattern_index, double *gl_mat) {
@@ -259,25 +274,14 @@ namespace CGLibs {
 		glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
     
 		switch(pattern_index) {
-		case MARKER_HIRO:
-			glColor3f(1.0, 0.0, 0.0);
-			glutSolidCube(50.0);
-			break;
-
-		case MARKER_SAMPLE1:
-			glColor3f(0.0, 1.0, 0.0);
-			glutSolidCube(50.0);
-			break;
-
-		case MARKER_SAMPLE2:
-			glColor3f(0.0, 0.0, 1.0);
-			glutSolidCube(50.0);
-			break;
-
-		case MARKER_KANJI:
-			glColor3f(0.5, 0.5, 0.5);
-			glutSolidCube(50.0);
-			break;
+			case MARKER_HIRO:
+				glColor3f(1.0, 0.0, 0.0);
+				glutSolidTeapot(50.0);
+				break;
+			case MARKER_SAMPLE2:
+				glColor3f(0.0, 0.0, 1.0);
+				glutSolidCube(50.0);
+				break;
 		}
 
 		glDisable(GL_LIGHTING);
@@ -291,13 +295,6 @@ namespace CGLibs {
 		GLfloat   light_position[]  = {100.0,-200.0,200.0,0.0};
 		GLfloat   ambi[]            = {0.1, 0.1, 0.1, 0.1};
 		GLfloat   lightZeroColor[]  = {0.9, 0.9, 0.9, 0.1};
-
-		argDrawMode3D();
-		argDraw3dCamera(0, 0);
-		glClearDepth(1.0);
-		glClear(GL_DEPTH_BUFFER_BIT);
-		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_LEQUAL);
     
 		// load the camera transformation matrix
 		glMatrixMode(GL_MODELVIEW);
@@ -318,25 +315,14 @@ namespace CGLibs {
 		glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
     
 		switch(pattern_index) {
-		case MARKER_HIRO:
-			glColor3f(1.0, 0.0, 0.0);
-			glutSolidCube(50.0);
-			break;
-
-		case MARKER_SAMPLE1:
-			glColor3f(0.0, 1.0, 0.0);
-			glutSolidCube(50.0);
-			break;
-
-		case MARKER_SAMPLE2:
-			glColor3f(0.0, 0.0, 1.0);
-			glutSolidCube(50.0);
-			break;
-
-		case MARKER_KANJI:
-			glColor3f(0.5, 0.5, 0.5);
-			glutSolidCube(50.0);
-			break;
+			case MARKER_HIRO:
+				glColor3f(1.0, 0.0, 0.0);
+				glutSolidTeapot(50.0);
+				break;
+			case MARKER_SAMPLE2:
+				glColor3f(0.0, 0.0, 1.0);
+				glutSolidCube(50.0);
+				break;
 		}
 
 		glDisable(GL_LIGHTING);

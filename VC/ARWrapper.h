@@ -75,7 +75,7 @@ namespace CGLibs {
 		/*static void renderOnPattern(int pattern_id, double *gl_mat);
 		static void renderManually(int pattern_index, double x, double y, double z, double a, double b, double c);*/
 		static void extractTransModelView(double gl_mat[16], double *x, double *y, double *z, double *a, double *b, double *c);
-		static void render (int pattern_index, double *gl_mat, double x, double y, double z, double a, double b, double c);
+		static void render (int pattern_index, double *gl_mat);
 		static void renderAuto(int pattern_index, double *gl_mat);
 		static void renderManual(int pattern_index, double x, double y, double z, double a, double b, double c);
 
