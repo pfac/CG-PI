@@ -230,9 +230,9 @@ namespace CGLibs {
 
 	void ARWrapper::extractTransModelView(double gl_mat[16], double *x, double *y, double *z, double *a, double *b, double *c)
 	{
-		double sa, ca, ta;
-		double sb, cb;
-		double sc, cc, tc;
+		double ta;
+		double sb;
+		double tc;
 
 		/*	RzRyRx rotation matrix	*/
 		sb = - gl_mat[2];
@@ -291,7 +291,7 @@ namespace CGLibs {
 
 		case MARKER_SAMPLE1:
 			glColor3f(0.0, 1.0, 0.0);
-			glutSolidTeapot(50.0);
+			glutSolidCube(50.0);
 			break;
 
 		case MARKER_SAMPLE2:
@@ -348,13 +348,6 @@ namespace CGLibs {
     
 		switch(pattern_index) {
 		case MARKER_HIRO:
-<<<<<<< HEAD
-			glutSolidCube(50.0);
-			break;
-
-		case MARKER_SAMPLE:
-			glutSolidTeapot(50.0);
-=======
 			glColor3f(1.0, 0.0, 0.0);
 			glutSolidCube(50.0);
 			break;
@@ -372,7 +365,6 @@ namespace CGLibs {
 		case MARKER_KANJI:
 			glColor3f(0.5, 0.5, 0.5);
 			glutSolidCube(50.0);
->>>>>>> b404b6d67a8de6a67022e1dc9e826e20b646d17a
 			break;
 		}
 
