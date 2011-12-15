@@ -72,6 +72,7 @@ namespace CGLibs {
 		static void markerDetected(Pattern pattern, ARMarkerInfo marker);
 		static void renderOnPattern(int pattern_id, double *gl_mat);
 		static void renderManually(int pattern_index, double x, double y, double z, double a, double b, double c);
+		static void extractTransModelView(double gl_mat[16], double *x, double *y, double *z, double *a, double *b, double *c);
 
 		// Drawing Function
 		static void drawOnMarker(int marker);
