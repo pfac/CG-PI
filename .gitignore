@@ -25,5 +25,6 @@ Thumbs.db
 *.sdf
 ipch/
 obj/
+VC\/[rR]elease*/
 _ReSharper*/
 [Tt]est[Rr]esult*
