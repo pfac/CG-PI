@@ -2,16 +2,6 @@
 
 #include <cstdio>
 
-#include <iomanip>
-//#include <boost\numeric\ublas\matrix.hpp>
-//#include <boost\numeric\ublas\vector.hpp>
-
-#include "invertmatrix.hpp"
-#include "latk.h"
-
-//namespace ublas = boost::numeric::ublas;
-
-//using ublas::matrix;
 
 #define COLW	15
 
@@ -49,6 +39,7 @@ namespace CGLibs {
 #pragma endregion
 
 #pragma region METHODS
+	/// <summary>Initializes the system configurations, namely camera data, pattern files and properties, and camera configuration files.</summary>
 	void ARWrapper::initVars() {
 		tmp_str_ptr = NULL;
 		cam_data = "../Data/camera_para.dat";
@@ -65,12 +56,12 @@ namespace CGLibs {
 		patt_thresh = 100;
 		patt_width = 80.0;
 	}
+
+	/// <summary>Initializes the application components. This function calls <see cref="initVars" />, glutInit, sets up the video capture mechanism and the window, and loads the patterns.</summary>
 	void ARWrapper::init(int *argc, char **argv) {
-
-		initVars();
-
 		ARParam wparam;
 
+		initVars();
 		glutInit(argc, argv);
 	
 		/* open the video path */
@@ -107,14 +98,30 @@ namespace CGLibs {
 		patterns.push_back(Pattern(file_sample2));
 		patterns.push_back(Pattern(file_kanji));
 	}
+
+	/// <summary>Starts the video capture and the application main loop.</summary>
 	void ARWrapper::run() {
 		arVideoCapStart();
-		getchar();
 		argMainLoop(mouseFunc, keyFunc, loopFunc);
 	}
+
+	/// <summary>Mouse button handler. Currently implements no reaction to mouse button clicks.</summary>
 	void ARWrapper::mouseFunc(int button, int state, int x, int y) {
 		return;
 	}
+
+	///	<summary>Keyboard button handler.
+	///		<list type="table">
+	///			<listheader>
+	///				<term>Button Key</term>
+	///				<description>Reaction</description>
+	///			</listheader>
+	///			<item>
+	///				<term>ESC</term>
+	///				<description>Prints framerate and quits.</description>
+	///			</item>
+	///		</list>
+	///	</summary>
 	void ARWrapper::keyFunc(unsigned char key, int x, int y) {
 		/* quit if the ESC key is pressed */
 		if( key == 0x1b ) {
@@ -123,6 +130,8 @@ namespace CGLibs {
 			exit(0);
 		}
 	}
+
+	///	<summary>Main loop function: captures a video frame and checks it for markers. For every detected marker, compares it with the patterns set.<seealso cref="initVars" /> When a detected marker is associated with a loaded pattern, calls <see cref="markerDetected" />.</summary>
 	void ARWrapper::loopFunc() {
 		ARUint8         *dataPtr;
 		ARMarkerInfo    *marker_info;
@@ -136,7 +145,7 @@ namespace CGLibs {
 		}
 
 		if(frame_count == 0 )
-			arUtilTimerReset(); /* Que fique claro, eu nao gosto disto */
+			arUtilTimerReset();
 		frame_count++;
 
 		argDrawMode2D();
@@ -165,6 +174,9 @@ namespace CGLibs {
 		argSwapBuffers();
 	}
 
+	///	<summary>Handles the matched markers, extracting position and orientation information. Tests the information extraction process by overlapping a manually rendered object (based on the translation and rotation data collected) with an automatically rendered object (loading the transformation matrix directly into OpenGL).</summary>
+	///	<param name="pattern">The matched pattern structure</param>
+	///	<param name="marker">The detected marker structure</param>
 	void ARWrapper::markerDetected(Pattern pattern, ARMarkerInfo marker) {
 		double gl_mat[16];
 
@@ -173,61 +185,22 @@ namespace CGLibs {
 
 		//get OpenGL matrix
 		argConvGlpara(patt_trans, gl_mat);
-		double rot[3][3];
-		arGetInitRot(&marker, patt_trans, rot);
-
-		
-
-		/**
-		 * TODO CALCULAR AQUI AS COORDS DO OBJECTO A PARTIR DA MATRIZ GL
-		 */
 
 		double x, y, z;/*	Pattern position	*/
 		double a, b, c;/*	Pattern Euler angles	*/
 		extractTransModelView(gl_mat, &x, &y, &z, &a, &b, &c);
-		double rfYAng, rfZAng, rfXAng;
-		int gimbalLock = 0;
-		if (gl_mat[2] < 0.995) {
-			if (gl_mat[2] > -0.995)  {
-				// y_angulo = asin(-r20)
-				// z_angulo = atan2(r10,r00)
-				// x_angulo = atan2(r21,r22)
-				rfYAng = asin(-gl_mat[2]);
-				rfZAng = atan2(gl_mat[1],gl_mat[0]);
-				rfXAng = atan2(gl_mat[6],gl_mat[10]);
-			} else {
-				// y_angulo = +pi/2
-				// x_angulo + z_angulo = atan2(r01,r02)
-				// NOTA.  La solución no es unica.  Tomamos x_angulo = 0.
-				rfYAng = PI/2;
-				rfZAng = -atan2(gl_mat[4],gl_mat[8]);
-				rfXAng = 0.0;
-				gimbalLock = 1;
-			}
-		} else {
-			// y_angulo = -pi/2
-			// x_angulo + z_angulo = atan2(-r01,-r02)
-			// NOTA.  La solución no es unica.  Tomamos x_angulo = 0.
-			rfYAng = -PI/2;
-			rfZAng = atan2(-gl_mat[4],-gl_mat[8]);
-			rfXAng = 0.0;
-			gimbalLock = 2;
-		}
 
-		a=RAD2DEG(rfXAng);
-		b=-RAD2DEG(rfYAng);
-		c=-RAD2DEG(rfZAng);
-
-		//arGetAngle(rot, &a, &b, &c);
-		//a = RAD2DEG(a);
-		//b = RAD2DEG(b);
-		//c = RAD2DEG(c);
-		cout << a << " " << b << " " << c << endl;
-		
-		renderOnPattern(pattern.getId(), gl_mat);
-		renderManually(pattern.getId(), x, y, z, a, b, c);
+		render(pattern.getId(), gl_mat, x, y, z, a, b, c);
 	}
 
+	///	<summary>Extracts transformations from the ModelView matrix (usually obtained automatically).</summary>
+	///	<param name="gl_mat">OpenGL ModelView transformation homogeneous 4x4 matrix, in a column-major array, as conventioned in OpenGL</param>
+	///	<param name="x">Reference to return the first component of the position.</param>
+	///	<param name="y">Reference to return the second component of the position.</param>
+	///	<param name="z">Reference to return the third component of the position.</param>
+	///	<param name="a">Reference to return the counter-clockwise rotation angle around the x axis.</param>
+	/// <param name="b">Reference to return the counter-clockwise rotation angle around the y axis.</param>
+	///	<param name="c">Reference to return the counter-clockwise rotation angle around the z axis.</param>
 	void ARWrapper::extractTransModelView(double gl_mat[16], double *x, double *y, double *z, double *a, double *b, double *c)
 	{
 		double ta;
@@ -249,11 +222,16 @@ namespace CGLibs {
 		*x = gl_mat[12];
 		*y = gl_mat[13];
 		*z = gl_mat[14];
-
-		
 	}
 
-	void ARWrapper::renderOnPattern(int pattern_index, double *gl_mat) {
+	void ARWrapper::render (int pattern_index, double *gl_mat, double x, double y, double z, double a, double b, double c)
+	{
+		/*	render object	*/
+		renderAuto(pattern_index, gl_mat);
+		renderManual(pattern_index, x,y,z,a,b,c);
+	}
+
+	void ARWrapper::renderAuto(int pattern_index, double *gl_mat) {
 		GLfloat   mat_ambient[]     = {0.0, 0.0, 1.0, 1.0};
 		GLfloat   mat_flash[]       = {0.0, 0.0, 1.0, 1.0};
 		GLfloat   mat_flash_shiny[] = {50.0};
@@ -267,8 +245,7 @@ namespace CGLibs {
 		glClear(GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LEQUAL);
-    
-		// load the camera transformation matrix
+
 		glMatrixMode(GL_MODELVIEW);
 		glLoadMatrixd(gl_mat);
 
@@ -280,8 +257,6 @@ namespace CGLibs {
 		glMaterialfv(GL_FRONT, GL_SPECULAR, mat_flash);
 		glMaterialfv(GL_FRONT, GL_SHININESS, mat_flash_shiny);	
 		glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
-		//glMatrixMode(GL_MODELVIEW);
-		//glTranslatef(0.0, 0.0, 25.0);
     
 		switch(pattern_index) {
 		case MARKER_HIRO:
@@ -309,7 +284,7 @@ namespace CGLibs {
 		glDisable( GL_DEPTH_TEST );
 	}
 
-	void ARWrapper::renderManually(int pattern_index, double x, double y, double z, double a, double b, double c) {
+	void ARWrapper::renderManual(int pattern_index, double x, double y, double z, double a, double b, double c) {
 		GLfloat   mat_ambient[]     = {0.0, 1.0, 0.0, 1.0};
 		GLfloat   mat_flash[]       = {0.0, 1.0, 0.0, 1.0};
 		GLfloat   mat_flash_shiny[] = {50.0};
@@ -327,14 +302,12 @@ namespace CGLibs {
 		// load the camera transformation matrix
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
-		//glLoadMatrixd(gl_mat);
-
 		glTranslatef(x,y,z);
 		glRotatef(a, 1, 0, 0);/* flip it vertically	*/
 		glRotatef(b, 0, 1, 0);
 		glRotatef(c, 0, 0, 1);
 		//glRotatef(180,1,0,0);
-		
+
 		glEnable(GL_LIGHTING);
 		glEnable(GL_LIGHT0);
 		glLightfv(GL_LIGHT0, GL_POSITION, light_position);
@@ -343,8 +316,6 @@ namespace CGLibs {
 		glMaterialfv(GL_FRONT, GL_SPECULAR, mat_flash);
 		glMaterialfv(GL_FRONT, GL_SHININESS, mat_flash_shiny);	
 		glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
-		glMatrixMode(GL_MODELVIEW);
-		//glTranslatef(0.0, 0.0,-25.0);
     
 		switch(pattern_index) {
 		case MARKER_HIRO:
