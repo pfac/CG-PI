@@ -33,7 +33,7 @@ namespace cg
 		void initShaders();
 
 		void move(float movement);
-		void turn(float factor);
+		
 		void refresh();
 	public:
 		CylindricalPoint direction;
@@ -47,6 +47,7 @@ namespace cg
 		void left();
 		void right();
 		void straight();
+		void turn(float factor);
 
 		//	draw
 		void draw(VSMathLib *vsml);

@@ -31,6 +31,8 @@
 #pragma comment (lib,"l3dvsld")
 #endif
 
+#define PATTERN_CONTROL
+
 #include <math.h>
 #include <fstream>
 #include <map>
@@ -53,14 +55,10 @@ using std::string;
 #include "camera.h"
 #include "blaf.h"
 
-#include "arwrapper.h"
+#include "ar.h"
 
 #define SHADER_GROUP_COUNT 3
 #define SHADER_COUNT 4
-
-#define PI 3.141592653589793238462643383279502f
-#define DEG2RAD(d)	\
-	( (d) * PI * 0.0055555555555555555555555555555f )
 
 
 std::ostream *f;
@@ -182,6 +180,19 @@ void renderScene(void) {
 	}
 
 	glutSwapBuffers();
+}
+
+void idleFunc()
+{
+	cout
+		<<	"bitch please!"
+		<<	endl;
+}
+
+
+void timeElapsed(int value)
+{
+	glutPostRedisplay();
 }
 
 
@@ -625,7 +636,7 @@ GLuint setupShaders() {
 		float lspc[3] = { 1.0 , 1.0 , 1.0 };
 		shaders[2][3].setUniform( "spotPosition" , spos );
 		shaders[2][3].setUniform( "spotDirection" , sdir );
-		shaders[2][3].setUniform( "spotLimitAngle" , DEG2RAD(7.5f) );
+		shaders[2][3].setUniform( "spotLimitAngle" , blaf::deg2rad(7.5f) );
 		shaders[2][3].setUniform( "diffuse" , ldif );
 		//shaders[1][3].setUniform( "ambient" , lamb );
 		shaders[2][3].setUniform( "specular" , lspc );
@@ -872,13 +883,14 @@ int main(int argc, char **argv) {
 
 	glutInitWindowPosition(100,100);
 	glutInitWindowSize(640,360);
-	glutCreateWindow("Lighthouse3D");
+	glutCreateWindow("Teapot World");
 
 
 	//  Callback Registration
 	glutDisplayFunc(renderScene);
 	glutReshapeFunc(changeSize);
 	glutIdleFunc(renderScene);
+	//glutTimerFunc( 1000 , timeElapsed , 0 );
 
 	//	Mouse and Keyboard Callbacks
 	//glutKeyboardFunc(processKeys);
@@ -910,11 +922,14 @@ int main(int argc, char **argv) {
 	if (!init())
 		printf("Could not Load the Model\n");
 	initVSL();
-	cg::pi::ar::init();
 
-	//  GLUT main loop
-	//glutMainLoop();
+#ifdef	PATTERN_CONTROL
+	cg::pi::ar::init(player);
 	cg::pi::ar::run();
+#else
+	//  GLUT main loop
+	glutMainLoop();
+#endif
 
 	cleanup();
 

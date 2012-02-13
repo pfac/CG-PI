@@ -75,7 +75,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="arwrapper.cpp" />
+    <ClCompile Include="ar.cpp" />
     <ClCompile Include="blaf.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="keyboard.cpp" />
@@ -84,7 +84,7 @@
     <ClCompile Include="player.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="arwrapper.h" />
+    <ClInclude Include="ar.h" />
     <ClInclude Include="blaf.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="keyboard.h" />

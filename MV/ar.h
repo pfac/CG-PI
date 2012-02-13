@@ -1,6 +1,7 @@
 #pragma once
 
 #include "pattern.h"
+#include "player.h"
 
 namespace cg
 {
@@ -9,7 +10,7 @@ namespace cg
 		namespace ar
 		{
 			// Initializes AR Toolkit
-			void init();
+			void init(Player *player);
 
 			// Starts marker recognition
 			void run();

@@ -1,6 +1,7 @@
 #include "keyboard.h"
 
 #include <ctype.h>
+#include <GL/freeglut.h>
 
 namespace cg
 {
@@ -63,6 +64,7 @@ namespace cg
 				}
 				keyDown(key);
 			}
+			glutPostRedisplay();
 		}
 
 		void keyDown(unsigned char key)
@@ -101,6 +103,7 @@ namespace cg
 					player->straight();
 			}
 			keyUp(key);
+			glutPostRedisplay();
 		}
 
 		void keyUp(unsigned char key)

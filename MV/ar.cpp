@@ -1,4 +1,4 @@
-#include "arwrapper.h"
+#include "ar.h"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -62,6 +62,9 @@ namespace cg
 			int				video_width;
 			unsigned		video_frame_count;
 
+			//	Player
+			Player *		player;
+
 
 
 
@@ -83,16 +86,11 @@ namespace cg
 
 			//////////////////////////////////////////////////////////////////////////
 			/// <summary>Initializes the application components. This function calls <see cref="initVars" />, glutInit, sets up the video capture mechanism and the window, and loads the patterns.</summary>
-			void init() {
+			void init(cg::Player *player) {
 				ARParam param;
 
 				/* open the video path */
 				char *filename = _strdup( video_conf_filename.c_str() );
-				std::cout
-					<<	"Camera filename: "
-					<<	filename
-					<<	std::endl;
-				getchar();
 				if ( arVideoOpen( filename ) < 0 )
 				{
 					cerr
@@ -136,6 +134,7 @@ namespace cg
 				argInit( &camera_param , 1.0 , 0 , 0, 0, 0 );
 
 				video_frame_count = 0;
+				ar::player = player;
 			}
 
 			/// <summary>Mouse button handler. Currently implements no reaction to mouse button clicks.</summary>
@@ -256,6 +255,18 @@ namespace cg
 
 				/*	information extraction	*/
 				extractTransModelView( gl_mat , &x , &y , &z , &a , &b , &c );
+
+				cout
+					<<	"b: "
+					<<	-b
+					<<	endl;
+				//if ( b > 0 )
+				//	player->left();
+				//else if ( b < 0 )
+				//	player->right();
+				//else
+				//	player->straight();
+				player->turn( blaf::deg2rad(b) );
 
 				/*	render object	*/
 				renderAuto( pattern_index , gl_mat );

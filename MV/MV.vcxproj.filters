@@ -33,7 +33,7 @@
     <ClCompile Include="pattern.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="arwrapper.cpp">
+    <ClCompile Include="ar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -53,7 +53,7 @@
     <ClInclude Include="pattern.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="arwrapper.h">
+    <ClInclude Include="ar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
