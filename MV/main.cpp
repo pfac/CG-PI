@@ -34,7 +34,10 @@
 #include <math.h>
 #include <fstream>
 #include <map>
+
 #include <string>
+using std::string;
+
 #include <vector>
 
 
@@ -49,6 +52,8 @@
 
 #include "camera.h"
 #include "blaf.h"
+
+#include "arwrapper.h"
 
 #define SHADER_GROUP_COUNT 3
 #define SHADER_COUNT 4
@@ -86,35 +91,6 @@ long myTime,timebase = 0,frame = 0;
 char s[32];
 
 unsigned shader_now, shader_group_now;
-
-/*
-//	Camera
-using cg::Camera;
-using blaf::space::Point;
-Point p;
-Camera cam(&p);
-
-struct Vector3D
-{
-	float x, y, z;
-};
-
-struct Player
-{
-	static const float velocity;
-	float lastMovement;
-	VSShaderLib shaders[ SHADER_GROUP_COUNT ];
-	Vector3D position;
-	struct
-	{
-		bool state;
-		int beganAt;//	ms
-		Vector3D direction;
-	} movement;
-} player;
-
-const float Player::velocity = 10.0f;//		m/s
-*/
 
 #include "player.h"
 using cg::Player;
@@ -934,9 +910,11 @@ int main(int argc, char **argv) {
 	if (!init())
 		printf("Could not Load the Model\n");
 	initVSL();
+	cg::pi::ar::init();
 
 	//  GLUT main loop
-	glutMainLoop();
+	//glutMainLoop();
+	cg::pi::ar::run();
 
 	cleanup();
 
