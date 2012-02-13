@@ -182,18 +182,13 @@ void renderScene(void) {
 	glutSwapBuffers();
 }
 
-void idleFunc()
-{
-	cout
-		<<	"bitch please!"
-		<<	endl;
-}
-
-
+#ifdef	PATTERN_CONTROL
 void timeElapsed(int value)
 {
 	glutPostRedisplay();
+	glutTimerFunc( 33 , timeElapsed , 0 );
 }
+#endif
 
 
 // ------------------------------------------------------------
@@ -889,8 +884,11 @@ int main(int argc, char **argv) {
 	//  Callback Registration
 	glutDisplayFunc(renderScene);
 	glutReshapeFunc(changeSize);
+#ifndef	PATTERN_CONTROL
 	glutIdleFunc(renderScene);
-	//glutTimerFunc( 1000 , timeElapsed , 0 );
+#else
+	glutTimerFunc( 1000 , timeElapsed , 0 );
+#endif
 
 	//	Mouse and Keyboard Callbacks
 	//glutKeyboardFunc(processKeys);

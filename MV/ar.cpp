@@ -198,7 +198,6 @@ namespace cg
 
 				arVideoCapNext();
 
-				num_detected = 0;
 				// for each marker detected, check for visibility
 				for ( int i = 0 ; i < marker_num ; ++i )
 				{
