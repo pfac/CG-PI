@@ -6,7 +6,8 @@
 
 #ifndef __APPLE__
 #include<gl/GL.h>
-#include<gl/GLUT.h>
+//#include<gl/GLUT.h>
+#include <GL/freeglut.h>
 #else
 #include <OpenGL/gl.h>
 #include <GLUT/glut.h>
@@ -19,6 +20,8 @@
 #include <AR/gsub.h>
 
 #include <AR/video.h>
+
+#include <boost/thread.hpp>
 
 //#include <AR/param.h>
 //#include <AR/ar.h>
@@ -61,6 +64,10 @@ namespace cg
 			int				video_height;
 			int				video_width;
 			unsigned		video_frame_count;
+
+			//	Output
+			boost::mutex	output_mutex;
+			float *			glTransformationMatrix;
 
 
 
@@ -129,10 +136,18 @@ namespace cg
 				arParamDisp( &camera_param );
 
 				/* open the graphics window */
-				argInit( &camera_param , 1.0 , 0 , 0, 0, 0 );
+				argInit( &camera_param , 1.0 , 0 , 0 , 0 , 0 );
 
 				video_frame_count = 0;
 			}
+
+			void init(float *glTransformationMatrix)
+			{
+				ar::glTransformationMatrix = glTransformationMatrix;
+				init();
+			}
+
+
 
 			/// <summary>Mouse button handler. Currently implements no reaction to mouse button clicks.</summary>
 			void mouseFunc(int button, int state, int x, int y) {
@@ -196,14 +211,42 @@ namespace cg
 				arVideoCapNext();
 
 				// for each marker detected, check for visibility
-				for ( int i = 0 ; i < marker_num ; ++i )
+				if ( marker_num )
 				{
-					// compare
-					if ( pattern.id() == marker_info[i].id )
+					for ( int i = 0 ; i < marker_num ; ++i )
 					{
-						markerDetected( pattern , marker_info[i] );
+						// compare
+						if ( pattern.id() == marker_info[i].id )
+						{
+							markerDetected( pattern , marker_info[i] );
+						}
 					}
 				}
+				else
+				{
+					lockOutput();
+					glTransformationMatrix[0] = 1;
+					glTransformationMatrix[1] = 0;
+					glTransformationMatrix[2] = 0;
+					glTransformationMatrix[3] = 0;
+
+					glTransformationMatrix[4] = 0;
+					glTransformationMatrix[5] = 1;
+					glTransformationMatrix[6] = 0;
+					glTransformationMatrix[7] = 0;
+
+					glTransformationMatrix[8] = 0;
+					glTransformationMatrix[9] = 0;
+					glTransformationMatrix[10] = 1;
+					glTransformationMatrix[11] = 0;
+
+					glTransformationMatrix[12] = 0;
+					glTransformationMatrix[13] = 0;
+					glTransformationMatrix[14] = 0;
+					glTransformationMatrix[15] = 1;
+					unlockOutput();
+				}
+				
 
 				argSwapBuffers();
 			}
@@ -229,8 +272,30 @@ namespace cg
 
 				//get OpenGL matrix
 				argConvGlpara( pattern_transformation , gl_mat );
-				//double rot[3][3];
-				//arGetInitRot(&marker, patt_trans, rot);
+
+				double rotation[3][3];
+				arGetInitRot( &marker, pattern_transformation , rotation );
+
+				//	set the teapot transformation matrix
+				lockOutput();
+				{
+					for ( int i = 0 ; i < 3 ; ++i )
+					{
+						for ( int j = 0 ; j < 3 ; ++j )
+						{
+							int k = j * 3 + i;
+							glTransformationMatrix[k] = rotation[i][j];
+						}
+					}
+					glTransformationMatrix[3] = 0;
+					glTransformationMatrix[7] = 0;
+					glTransformationMatrix[11] = 0;
+					glTransformationMatrix[12] = 0;
+					glTransformationMatrix[13] = 0;
+					glTransformationMatrix[14] = 0;
+					glTransformationMatrix[15] = 1;
+				}
+				unlockOutput();
 
 				render( pattern.id() , gl_mat );
 			}
@@ -423,6 +488,16 @@ namespace cg
 
 
 
+
+			void lockOutput()
+			{
+				output_mutex.lock();
+			}
+
+			void unlockOutput()
+			{
+				output_mutex.unlock();
+			}
 		}
 	}
 }

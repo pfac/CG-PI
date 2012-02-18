@@ -25,18 +25,7 @@
 //
 //// Have Fun :-)
 //
-//#ifndef _DEBUG
-//#pragma comment (lib,"l3dvsl")
-//#else
-//#pragma comment (lib,"l3dvsld")
-//#endif
-//
-//#define PATTERN_CONTROL
-//
-//#include <math.h>
-//#include <fstream>
-//#include <map>
-//
+
 #include <string>
 using std::string;
 
@@ -60,6 +49,9 @@ using std::string;
 
 #include "ar.h"
 
+#define	TEAPOT_WORLD
+#define	PATTERN_CONTROL
+
 //#define SHADER_GROUP_COUNT 3
 //#define SHADER_COUNT 4
 //
@@ -69,14 +61,16 @@ VSMathLib *vsml;
 VSShaderLib shader1;
 VSShaderLib shader2;
 VSResModelLib teapot;
-//
-//// Query to track the number of primitives
-//// issued by the tesselation shaders
-//GLuint counterQ;
-//unsigned int primitiveCounter = 0;
+
+
+
 //
 // Camera Position
-float camX = 0, camY = 0, camZ = 5;
+//
+float camX = 0, camY = 5, camZ = 5;
+
+
+
 //
 //// Mouse Tracking Variables
 //int startX, startY, tracking = 0;
@@ -101,6 +95,8 @@ float camX = 0, camY = 0, camZ = 5;
 //using cg::Camera;
 //Camera *cam;
 //
+
+float glTransformationMatrix[16];
 
 
 
@@ -174,6 +170,29 @@ void renderScene(void) {
 			//glUseProgram(player.shaders[shader_group_now].getProgramIndex());
 			glUseProgram(shader2.getProgramIndex());
 			vsml->pushMatrix(VSMathLib::MODEL);
+			cg::pi::ar::lockOutput();
+			{
+				//for ( int i = 0 ; i < 4 ; ++i )
+				//{
+				//	for ( int j = 0 ; j < 4 ; ++j )
+				//	{
+				//		int k = j * 4 + i;
+				//		cout
+				//			<<	glTransformationMatrix[k]
+				//			<<	'\t';
+				//	}
+				//	cout
+				//		<<	endl;
+				//}
+				float *glModelMatrix;
+				float *glModifiedTransformationMatrix;
+				glModelMatrix = vsml->get( VSMathLib::MODEL );
+				vsml->loadMatrix( VSMathLib::AUX0 , glTransformationMatrix );
+				vsml->multMatrix( VSMathLib::AUX0 , glModelMatrix );
+				glModifiedTransformationMatrix = vsml->get( VSMathLib::AUX0 );
+				vsml->loadMatrix( VSMathLib::MODEL , glModifiedTransformationMatrix );
+			}
+			cg::pi::ar::unlockOutput();
 			//vsml->translate(VSMathLib::MODEL, player.position.x, player.position.y, player.position.z);
 			//vsml->translate(VSMathLib::MODEL, 0, 0, 0);
 			teapot.render();
@@ -190,15 +209,15 @@ void renderScene(void) {
 
 
 
-//
-//#ifdef	PATTERN_CONTROL
-//void timeElapsed(int value)
-//{
-//	glutPostRedisplay();
-//	glutTimerFunc( 33 , timeElapsed , 0 );
-//}
-//#endif
-//
+
+#ifdef	PATTERN_CONTROL
+void timeElapsed(int value)
+{
+	glutPostRedisplay();
+	glutTimerFunc( 33 , timeElapsed , 0 );
+}
+#endif
+
 //
 //// ------------------------------------------------------------
 ////
@@ -971,6 +990,7 @@ int main(int argc, char **argv) {
 	//  GLUT initialization
 	glutInit(&argc, argv);
 
+#ifdef	TEAPOT_WORLD
 	glutInitDisplayMode(
 		GLUT_DEPTH |
 		GLUT_DOUBLE |
@@ -981,7 +1001,7 @@ int main(int argc, char **argv) {
 	// Set context
 	glutInitContextVersion(3,3);
 
-	glutInitWindowPosition(100,100);
+	glutInitWindowPosition(600,100);
 	glutInitWindowSize(640,360);
 	glutCreateWindow("Teapot World");
 
@@ -989,11 +1009,11 @@ int main(int argc, char **argv) {
 	//  Callback Registration
 	glutDisplayFunc(renderScene);
 	glutReshapeFunc(changeSize);
-//#ifndef	PATTERN_CONTROL
+#ifndef	PATTERN_CONTROL
 	glutIdleFunc(renderScene);
-//#else
-//	glutTimerFunc( 1000 , timeElapsed , 0 );
-//#endif
+#else
+	glutTimerFunc( 1000 , timeElapsed , 0 );
+#endif
 
 	//	Mouse and Keyboard Callbacks
 	//glutKeyboardFunc(processKeys);
@@ -1026,15 +1046,20 @@ int main(int argc, char **argv) {
 	init();
 	initVSL();
 
-//#ifdef	PATTERN_CONTROL
-	cg::pi::ar::init();
+#ifdef	PATTERN_CONTROL
+	cg::pi::ar::init(glTransformationMatrix);
 	cg::pi::ar::run();
-//#else
-//	//  GLUT main loop
-	//glutMainLoop();
-//#endif
+#else
+	//  GLUT main loop
+	glutMainLoop();
+#endif
 
 	cleanup();
+
+#else
+	cg::pi::ar::init();
+	cg::pi::ar::run();
+#endif
 
 	return 0;
 

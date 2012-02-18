@@ -10,9 +10,13 @@ namespace cg
 		{
 			// Initializes AR Toolkit
 			void init();
+			void init(float *glTransformationMatrix);
 
 			// Starts marker recognition
 			void run();
+
+			void lockOutput();
+			void unlockOutput();
 		}
 	}
 }
