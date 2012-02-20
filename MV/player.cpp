@@ -105,13 +105,14 @@ namespace cg
 	//
 	Player::Player()
 		: _velocity(Player::defaultVelocity)
-		, direction(Player::defaultDirection)
+		, _direction(Player::defaultDirection)
 		, _w(Player::defaultAngularVelocity)
 		, _movement(0.0f)
 		, _wf(0.0f)
 	{
 		initModels();
-		initShaders();
+		//initShaders();
+		refreshDirection();
 	}
 
 
@@ -174,7 +175,8 @@ namespace cg
 			int t = glutGet( GLUT_ELAPSED_TIME );
 			dt = ( t - this->_t0 ) * 0.001f;
 			float ds = this->_velocity * dt * this->_movement;
-			*this += ( this->direction * ds );
+			CartesianPoint direction( this->direction );
+			*this += ( direction * ds );
 			//*this += ( Player::defaultDirection * ds );
 			_t0 = t;
 
@@ -182,9 +184,16 @@ namespace cg
 			dt = ( t - this->_wt0 ) * 0.001f;
 			float da = this->_w * dt * this->_wf;
 			//std::cout << "da: " << da << std::endl;
-			this->direction.teta( this->direction.teta() + da );
+			this->_direction.teta( this->_direction.teta() + da );
 			_wt0 = t;
 		}
+	}
+
+	void Player::refreshDirection()
+	{
+		direction[0] = _direction.x();
+		direction[1] = _direction.y();
+		direction[2] = _direction.z();
 	}
 
 
@@ -201,12 +210,12 @@ namespace cg
 		vsml->popMatrix(VSMathLib::MODEL);*/
 
 		this->refresh();
-		glUseProgram( _shader.getProgramIndex() );
+		//glUseProgram( _shader.getProgramIndex() );
 		vsml->pushMatrix( VSMathLib::MODEL );
 		vsml->translate( VSMathLib::MODEL , this->x() , this->y() , this->z() );
 		vsml->rotate(
 			VSMathLib::MODEL,
-			RAD2DEG( this->direction.teta() ),
+			blaf::rad2deg( this->direction[2] ),
 			0.0f , 1.0f , 0.0f);
 		_model.render();
 		vsml->popMatrix( VSMathLib::MODEL );

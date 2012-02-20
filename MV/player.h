@@ -22,6 +22,7 @@ namespace cg
 
 		VSResModelLib _model;
 		VSShaderLib _shader;
+		CylindricalPoint _direction;
 		float _velocity;
 		float _w;//	angular velocity
 		int _t0;
@@ -35,8 +36,9 @@ namespace cg
 		void move(float movement);
 		
 		void refresh();
+		void refreshDirection();
 	public:
-		CylindricalPoint direction;
+		float direction[3];
 
 		Player();
 

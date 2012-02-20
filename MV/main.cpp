@@ -60,6 +60,18 @@ using std::string;
 VSMathLib *vsml;
 VSShaderLib shader1;
 VSShaderLib shader2;
+
+//	teapot cube colors
+//	0	black
+//	1	blue
+//	2	green
+//	3	cyan
+//	4	red
+//	5	magenta
+//	6	yellow
+//	7	white
+VSShaderLib shaders[8];
+
 VSResModelLib teapot;
 
 
@@ -69,6 +81,11 @@ VSResModelLib teapot;
 //
 float camX = 0, camY = 5, camZ = 5;
 
+float camDirection[4] = { 0.0f , 0.0f , -1.0f , 0.0f };
+float camPosition[4] = { 0.0f , 0.0f , 0.0f , 1.0f };
+float camTarget[4];
+float camUp[4] = { 0.0f , 1.0f , 0.0f , 0.0f };
+float camZoom = 5.0f;
 
 
 //
@@ -84,18 +101,19 @@ float camX = 0, camY = 5, camZ = 5;
 //char s[32];
 //
 //unsigned shader_now, shader_group_now;
-//
-//#include "player.h"
-//using cg::Player;
-//Player *player;
-//
-//#include "keyboard.h"
-//
-//#include "camera.h"
-//using cg::Camera;
-//Camera *cam;
-//
 
+#include "player.h"
+using cg::Player;
+Player *player;
+
+#include "keyboard.h"
+
+#include "camera.h"
+using cg::Camera;
+Camera *cam;
+
+
+float glEulerAngles[3];
 float glTransformationMatrix[16];
 
 
@@ -134,8 +152,113 @@ void renderScene(void) {
 
 	vsml->loadIdentity(VSMathLib::MODEL);
 	vsml->loadIdentity(VSMathLib::VIEW);
-	vsml->lookAt(camX, camY, camZ, 0,0,0, 0,1,0);
+
+	{
+#ifdef PATTERN_CONTROL
+		cg::pi::ar::lockOutput();
+		//for ( int i = 0 ; i < 4 ; ++i )
+		//{
+		//	for ( int j = 0 ; j < 4 ; ++j )
+		//	{
+		//		int k = j * 4 + i;
+		//		cout
+		//			<<	glTransformationMatrix[k]
+		//			<<	'\t';
+		//	}
+		//	cout
+		//		<<	endl;
+		//}
+		vsml->loadMatrix( VSMathLib::AUX0 , glTransformationMatrix );
+		cg::pi::ar::unlockOutput();
+		float newCamDirection[4];
+		float newCamUp[4];
+		for ( int k = 0 ; k < 4 ; ++k )
+		{
+			newCamDirection[k] = camDirection[k];
+			newCamUp[k] = camUp[k];
+		}
+		vsml->multMatrixPoint( VSMathLib::AUX0 , camDirection , newCamDirection );
+		vsml->multMatrixPoint( VSMathLib::AUX0 , camUp , newCamUp );
+		//for ( int k = 0 ; k < 4 ; ++k )
+		//{
+		//	cout
+		//		<<	camDirection[k]
+		//	<<	'\t';
+		//}
+		//cout
+		//	<<	endl;
+		//getchar();
+		for ( int k = 0 ; k < 4 ; ++k )
+		{
+			camTarget[k] = camPosition[k] + newCamDirection[k] * camZoom;
+		}
+
+		vsml->lookAt(
+			camPosition[0] , camPosition[1] , camPosition[2] ,
+			camTarget[0] , camTarget[1] , camTarget[2] ,
+			//camUp[0] , camUp[1] , camUp[2] )
+			newCamUp[0] , newCamUp[1] , newCamUp[2] )
+			;
+#else
+		for ( int k = 0 ; k < 4 ; ++k )
+		{
+			camTarget[k] = camPosition[k] + camDirection[k] * camZoom;
+		}
+
+		vsml->lookAt(
+			camPosition[0] , camPosition[1] , camPosition[2] ,
+			camTarget[0] , camTarget[1] , camTarget[2] ,
+			camUp[0] , camUp[1] , camUp[2] )
+			;
+#endif
+	}
+
+	//vsml->lookAt(camX, camY, camZ, 0,0,0, 0,1,0);
 	//cam->lookAt(vsml);
+	//vsml->lookAt(
+	//	0.0f , 0.0f , 0.0f,
+	//	0.0f , 0.0f , -1.0f,
+	//	0.0f , 1.0f , 0.0f
+	//	);
+
+	//cg::pi::ar::lockOutput();
+	//{
+	//	for ( int i = 0 ; i < 4 ; ++i )
+	//	{
+	//		for ( int j = 0 ; j < 4 ; ++j )
+	//		{
+	//			int k = j * 4 + i;
+	//			cout
+	//				<<	glTransformationMatrix[k]
+	//			<<	'\t';
+	//		}
+	//		cout
+	//			<<	endl;
+	//	}
+	//	//for ( int w = 0 ; w < 3 ; ++w )
+	//	//{
+	//	//	cout
+	//	//		<<	glEulerAngles[w]
+	//	//		<<	'\t';
+	//	//}
+	//	//cout
+	//	//	<<	endl;
+
+
+	//	//float *glModelMatrix;
+	//	//float *glModifiedTransformationMatrix;
+	//	//glModelMatrix = vsml->get( VSMathLib::MODEL );
+	//	//vsml->loadMatrix( VSMathLib::AUX0 , glTransformationMatrix );
+	//	//vsml->multMatrix( VSMathLib::AUX0 , glModelMatrix );
+	//	//glModifiedTransformationMatrix = vsml->get( VSMathLib::AUX0 );
+	//	//vsml->loadMatrix( VSMathLib::MODEL , glModifiedTransformationMatrix );
+	//	vsml->loadMatrix( VSMathLib::VIEW , glTransformationMatrix );
+
+	//	//vsml->rotate( VSMathLib::MODEL , glEulerAngles[2] , 0.0f , 0.0f , 1.0f );
+	//	//vsml->rotate( VSMathLib::MODEL , glEulerAngles[1] , 0.0f , 1.0f , 0.0f );
+	//	//vsml->rotate( VSMathLib::MODEL , glEulerAngles[0] , 1.0f , 0.0f , 0.0f );
+	//}
+	//cg::pi::ar::unlockOutput();
 	
 	//std::cout
 	//	<<	'('
@@ -152,56 +275,114 @@ void renderScene(void) {
 
 		// set the shader to render models
 		//glUseProgram(shaders[shader_group_now][shader_now].getProgramIndex());
-		glUseProgram(shader1.getProgramIndex());
+		//glUseProgram(shaders[0].getProgramIndex());
 		// start counting primitives
 		// render array of models
-		for (float x = -2.0f ; x < 3.0f ; x += 2.0f) {
-			for (float z = -2.0f; z < 3.0f ; z += 2.0f) {
-				vsml->pushMatrix(VSMathLib::MODEL);
-				vsml->translate(VSMathLib::MODEL, x, 0.0f, z);
-				if ( x < -1.0f || x > 1.0f || z < -1.0f || z > 1.0f )
-					teapot.render();
-				vsml->popMatrix(VSMathLib::MODEL);
+		//for (float x = -2.0f ; x < 3.0f ; x += 2.0f) {
+		//	for (float z = -2.0f; z < 3.0f ; z += 2.0f) {
+		//		vsml->pushMatrix(VSMathLib::MODEL);
+		//		vsml->translate(VSMathLib::MODEL, x, 0.0f, z);
+		//		if ( x < -1.0f || x > 1.0f || z < -1.0f || z > 1.0f )
+		//			teapot.render();
+		//		vsml->popMatrix(VSMathLib::MODEL);
+		//	}
+		//}
+
+
+
+		//	Cube
+		for ( float x = -10.0f ; x < 12.5f ; x += 5.0f )
+		{
+			int xColor = x < -7.5f || x > 7.5f;
+
+			for ( float y = -10.0f ; y < 12.5f ; y += 5.0f )
+			{
+				int yColor = y < -7.5f || y > 7.5f;
+
+				for ( float z = -10.0f ; z < 12.5f ; z += 5.0f )
+				{
+					int zColor = z < -7.5f || z > 7.5f;
+					int index = xColor * 4 + yColor * 2 + zColor;
+
+					if ( index )
+					{
+						glUseProgram( shaders[index].getProgramIndex() );
+						vsml->pushMatrix( VSMathLib::MODEL );
+						vsml->translate( VSMathLib::MODEL , x , y , z );
+						teapot.render();
+						vsml->popMatrix( VSMathLib::MODEL );
+					}
+				}
 			}
 		}
+
+
+
+
+
 		// stop counting primitives
 
-		{
-			//glUseProgram(player.shaders[shader_group_now].getProgramIndex());
-			glUseProgram(shader2.getProgramIndex());
-			vsml->pushMatrix(VSMathLib::MODEL);
-			cg::pi::ar::lockOutput();
-			{
-				//for ( int i = 0 ; i < 4 ; ++i )
-				//{
-				//	for ( int j = 0 ; j < 4 ; ++j )
-				//	{
-				//		int k = j * 4 + i;
-				//		cout
-				//			<<	glTransformationMatrix[k]
-				//			<<	'\t';
-				//	}
-				//	cout
-				//		<<	endl;
-				//}
-				float *glModelMatrix;
-				float *glModifiedTransformationMatrix;
-				glModelMatrix = vsml->get( VSMathLib::MODEL );
-				vsml->loadMatrix( VSMathLib::AUX0 , glTransformationMatrix );
-				vsml->multMatrix( VSMathLib::AUX0 , glModelMatrix );
-				glModifiedTransformationMatrix = vsml->get( VSMathLib::AUX0 );
-				vsml->loadMatrix( VSMathLib::MODEL , glModifiedTransformationMatrix );
-			}
-			cg::pi::ar::unlockOutput();
-			//vsml->translate(VSMathLib::MODEL, player.position.x, player.position.y, player.position.z);
-			//vsml->translate(VSMathLib::MODEL, 0, 0, 0);
-			teapot.render();
-			vsml->popMatrix(VSMathLib::MODEL);
-		}
-
 		//{
-		//	player->draw(vsml);
+		//	//glUseProgram(player.shaders[shader_group_now].getProgramIndex());
+		//	glUseProgram(shader2.getProgramIndex());
+		//	vsml->pushMatrix(VSMathLib::MODEL);
+		//	//vsml->translate(VSMathLib::MODEL, player.position.x, player.position.y, player.position.z);
+		//	//vsml->translate(VSMathLib::MODEL, 0, 0, 0);
+		//	teapot.render();
+		//	vsml->popMatrix(VSMathLib::MODEL);
 		//}
+
+		{
+#ifdef PATTERN_CONTROL
+			//float originalDirection[4];
+			//float computedDirection[4];
+
+			//{
+			//	originalDirection[0] = player->direction.x();
+			//	originalDirection[1] = player->direction.y();
+			//	originalDirection[2] = player->direction.z();
+			//	originalDirection[3] = 1;
+			//}
+
+			//cg::pi::ar::lockOutput();
+			////for ( int w = 0 ; w < 3 ; ++w )
+			////{
+			////	cout
+			////		<<	glEulerAngles[w]
+			////		<<	'\t';
+			////	//}
+			//vsml->loadMatrix( VSMathLib::AUX0 , glTransformationMatrix );
+			//cg::pi::ar::unlockOutput();
+
+			////	check matrix
+			//float *glViewMatrix = vsml->get( VSMathLib::AUX0 );
+			//for ( int i = 0 ; i < 4 ; ++i )
+			//{
+			//	for ( int j = 0 ; j < 4 ; ++j )
+			//	{
+			//		int k = j * 4 + i;
+			//		cout
+			//			<<	glViewMatrix[k]
+			//		<<	'\t';
+			//	}
+			//	cout
+			//		<<	endl;
+			//}
+
+			//vsml->multMatrixPoint( VSMathLib::AUX0 , originalDirection , computedDirection );
+			//player->direction.x( computedDirection[0] );
+			//player->direction.y( computedDirection[1] );
+			//player->direction.z( computedDirection[2] );
+			//player->direction.normalize();
+#endif
+
+			//glUseProgram( shaders[0].getProgramIndex() );
+			////player->draw(vsml);
+			//vsml->pushMatrix( VSMathLib::MODEL );
+			//vsml->translate( VSMathLib::MODEL , 0.0 , 0.0 , 0.0 );
+			//teapot.render();
+			//vsml->popMatrix( VSMathLib::MODEL );
+		}
 	}
 
 	glutSwapBuffers();
@@ -210,13 +391,13 @@ void renderScene(void) {
 
 
 
-#ifdef	PATTERN_CONTROL
+//#ifdef	PATTERN_CONTROL
 void timeElapsed(int value)
 {
 	glutPostRedisplay();
 	glutTimerFunc( 33 , timeElapsed , 0 );
 }
-#endif
+//#endif
 
 //
 //// ------------------------------------------------------------
@@ -925,6 +1106,100 @@ GLuint setupShaders() {
 
 
 
+void initCubeSideShader( unsigned color )
+{
+	color = ( color > 7 ) ? 7 : color;
+	shaders[color].init();
+	shaders[color].loadShader(
+		VSShaderLib::VERTEX_SHADER,
+		"../shaders/light/point/phong.vert.glsl")
+		;
+	shaders[color].loadShader(
+		VSShaderLib::FRAGMENT_SHADER,
+		"../shaders/light/point/phong.frag.glsl")
+		;
+
+	// set semantics for the shader variables
+	shaders[color].setProgramOutput( 0 , "color" );
+	shaders[color].setVertexAttribName(
+		VSShaderLib::VERTEX_COORD_ATTRIB,
+		"position")
+		;
+	shaders[color].setVertexAttribName(
+		VSShaderLib::NORMAL_ATTRIB,
+		"normal")
+		;
+
+	shaders[color].prepareProgram();
+
+	VSGLInfoLib::getProgramInfo(shaders[color].getProgramIndex());
+	printf("%s\n", shaders[color].getAllInfoLogs().c_str());
+
+	//	uniforms
+	{
+		float lpos[4] = { 30.0 , 5.0 , 0.0 , 1.0 };
+		float ldif[3];
+		switch (color)
+		{
+		case 0://	black
+			ldif[0] = 0.0;
+			ldif[1] = 0.0;
+			ldif[2] = 0.0;
+			break;
+		case 1://	blue
+			ldif[0] = 0.0;
+			ldif[1] = 0.0;
+			ldif[2] = 1.0;
+			break;
+		case 2://	green
+			ldif[0] = 0.0;
+			ldif[1] = 1.0;
+			ldif[2] = 0.0;
+			break;
+		case 3://	cyan
+			ldif[0] = 0.0;
+			ldif[1] = 1.0;
+			ldif[2] = 1.0;
+			break;
+		case 4://	red
+			ldif[0] = 1.0;
+			ldif[1] = 0.0;
+			ldif[2] = 0.0;
+			break;
+		case 5://	magenta
+			ldif[0] = 1.0;
+			ldif[1] = 0.0;
+			ldif[2] = 1.0;
+			break;
+		case 6://	yellow
+			ldif[0] = 1.0;
+			ldif[1] = 1.0;
+			ldif[2] = 0.0;
+			break;
+		case 7://	white
+		default:
+			ldif[0] = 1.0;
+			ldif[0] = 1.0;
+			ldif[0] = 1.0;
+		}
+		float lspc[3] = { 1.0 , 1.0 , 1.0 };
+		shaders[color].setUniform( "lightPosition" , lpos );
+		shaders[color].setUniform( "diffuse" , ldif );
+		shaders[color].setUniform( "specular" , lspc );
+		shaders[color].setUniform( "shininess" , 100.0f );
+	}
+}
+
+
+
+void initCubeShaders()
+{
+	for ( unsigned s = 0 ; s < 8 ; ++s )
+		initCubeSideShader(s);
+}
+
+
+
 // ------------------------------------------------------------
 //
 // Model loading and OpenGL setup
@@ -943,11 +1218,33 @@ int init()
 		exit(1);
 	}
 
-	//player = new Player();
+	player = new Player();
 
-	//cg::keyboard::init(player);
+	cg::keyboard::init(player);
 
-	//cam = new Camera(player);
+	cam = new Camera(player);
+
+	{
+		glTransformationMatrix[0] = 1;
+		glTransformationMatrix[1] = 0;
+		glTransformationMatrix[2] = 0;
+		glTransformationMatrix[3] = 0;
+
+		glTransformationMatrix[4] = 0;
+		glTransformationMatrix[5] = 1;
+		glTransformationMatrix[6] = 0;
+		glTransformationMatrix[7] = 0;
+
+		glTransformationMatrix[8] = 0;
+		glTransformationMatrix[9] = 0;
+		glTransformationMatrix[10] = 1;
+		glTransformationMatrix[11] = 0;
+
+		glTransformationMatrix[12] = 0;
+		glTransformationMatrix[13] = 0;
+		glTransformationMatrix[14] = 0;
+		glTransformationMatrix[15] = 1;
+	}
 
 	glEnable(GL_DEPTH_TEST);
 	//glEnable(GL_CULL_FACE);
@@ -976,7 +1273,8 @@ void initVSL() {
 //
 void cleanup()
 {
-	//delete player;
+	delete cam;
+	delete player;
 }
 
 
@@ -1009,17 +1307,17 @@ int main(int argc, char **argv) {
 	//  Callback Registration
 	glutDisplayFunc(renderScene);
 	glutReshapeFunc(changeSize);
-#ifndef	PATTERN_CONTROL
-	glutIdleFunc(renderScene);
-#else
+//#ifndef	PATTERN_CONTROL
+//	glutIdleFunc(renderScene);
+//#else
 	glutTimerFunc( 1000 , timeElapsed , 0 );
-#endif
+//#endif
 
 	//	Mouse and Keyboard Callbacks
 	//glutKeyboardFunc(processKeys);
 	//{
-	//	glutKeyboardFunc(cg::keyboard::keyDown);
-	//	glutKeyboardUpFunc(cg::keyboard::keyUp);
+	glutKeyboardFunc(cg::keyboard::keyDown);
+	glutKeyboardUpFunc(cg::keyboard::keyUp);
 	//}
 	//glutMouseFunc(processMouseButtons);
 	//glutMotionFunc(processMouseMotion);
@@ -1043,11 +1341,12 @@ int main(int argc, char **argv) {
 	VSGLInfoLib::getGeneralInfo();
 
 	setupShaders();
+	initCubeShaders();
 	init();
 	initVSL();
 
 #ifdef	PATTERN_CONTROL
-	cg::pi::ar::init(glTransformationMatrix);
+	cg::pi::ar::init(glTransformationMatrix,glEulerAngles);
 	cg::pi::ar::run();
 #else
 	//  GLUT main loop

@@ -68,6 +68,7 @@ namespace cg
 			//	Output
 			boost::mutex	output_mutex;
 			float *			glTransformationMatrix;
+			float *			glEulerAngles;
 
 
 
@@ -145,6 +146,14 @@ namespace cg
 			{
 				ar::glTransformationMatrix = glTransformationMatrix;
 				init();
+			}
+
+
+
+			void init(float *glTransformationMatrix, float *glEulerAngles)
+			{
+				ar::glEulerAngles = glEulerAngles;
+				init(glTransformationMatrix);
 			}
 
 
@@ -244,6 +253,10 @@ namespace cg
 					glTransformationMatrix[13] = 0;
 					glTransformationMatrix[14] = 0;
 					glTransformationMatrix[15] = 1;
+
+					glEulerAngles[0] = 0;
+					glEulerAngles[1] = 0;
+					glEulerAngles[2] = 0;
 					unlockOutput();
 				}
 				
@@ -264,6 +277,9 @@ namespace cg
 			{
 				double gl_mat[16];
 				double center[2];
+				double a;
+				double b;
+				double c;
 
 				//compute transformation matrix from pattern
 				center[0] = pattern.centerX();
@@ -275,6 +291,7 @@ namespace cg
 
 				double rotation[3][3];
 				arGetInitRot( &marker, pattern_transformation , rotation );
+				arGetAngle(rotation,&a,&b,&c);
 
 				//	set the teapot transformation matrix
 				lockOutput();
@@ -283,8 +300,9 @@ namespace cg
 					{
 						for ( int j = 0 ; j < 3 ; ++j )
 						{
-							int k = j * 3 + i;
-							glTransformationMatrix[k] = rotation[i][j];
+							int k = j * 4 + i;
+							//glTransformationMatrix[k] = rotation[j][i];
+							glTransformationMatrix[k] = gl_mat[k];
 						}
 					}
 					glTransformationMatrix[3] = 0;
@@ -294,6 +312,10 @@ namespace cg
 					glTransformationMatrix[13] = 0;
 					glTransformationMatrix[14] = 0;
 					glTransformationMatrix[15] = 1;
+
+					glEulerAngles[0] = blaf::rad2deg(a);
+					glEulerAngles[1] = blaf::rad2deg(b);
+					glEulerAngles[2] = blaf::rad2deg(c);
 				}
 				unlockOutput();
 

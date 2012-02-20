@@ -37,7 +37,7 @@ namespace cg
 	float Camera::x() const
 	{
 		float distance = this->radial();
-		return _target->x() - _target->direction.x() * distance;
+		return _target->x() - _target->direction[0] * distance;
 		//if ( _target )
 		//	return SphericalPoint::x() + _target->x();
 		//else
@@ -47,7 +47,7 @@ namespace cg
 	float Camera::y() const
 	{
 		float distance = this->radial();
-		return _target->y() - _target->direction.y() * distance;
+		return _target->y() - _target->direction[1] * distance;
 		//if ( _target )
 		//	return SphericalPoint::y() + _target->y();
 		//else
@@ -57,7 +57,7 @@ namespace cg
 	float Camera::z() const
 	{
 		float distance = this->radial();
-		return _target->z() - _target->direction.z() * distance;
+		return _target->z() - _target->direction[2] * distance;
 		//if ( _target )
 		//	return SphericalPoint::z() + _target->z();
 		//else
