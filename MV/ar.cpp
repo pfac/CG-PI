@@ -68,7 +68,6 @@ namespace cg
 			//	Output
 			boost::mutex	output_mutex;
 			float *			glTransformationMatrix;
-			float *			glEulerAngles;
 
 
 
@@ -150,14 +149,6 @@ namespace cg
 
 
 
-			void init(float *glTransformationMatrix, float *glEulerAngles)
-			{
-				ar::glEulerAngles = glEulerAngles;
-				init(glTransformationMatrix);
-			}
-
-
-
 			/// <summary>Mouse button handler. Currently implements no reaction to mouse button clicks.</summary>
 			void mouseFunc(int button, int state, int x, int y) {
 				return;
@@ -195,7 +186,6 @@ namespace cg
 				ARUint8         *dataPtr;
 				ARMarkerInfo    *marker_info;
 				int             marker_num;
-				int             num_detected;
 
 				/* grab a video frame */
 				dataPtr = (ARUint8*) arVideoGetImage();
@@ -253,10 +243,6 @@ namespace cg
 					glTransformationMatrix[13] = 0;
 					glTransformationMatrix[14] = 0;
 					glTransformationMatrix[15] = 1;
-
-					glEulerAngles[0] = 0;
-					glEulerAngles[1] = 0;
-					glEulerAngles[2] = 0;
 					unlockOutput();
 				}
 				
@@ -277,9 +263,6 @@ namespace cg
 			{
 				double gl_mat[16];
 				double center[2];
-				double a;
-				double b;
-				double c;
 
 				//compute transformation matrix from pattern
 				center[0] = pattern.centerX();
@@ -288,10 +271,6 @@ namespace cg
 
 				//get OpenGL matrix
 				argConvGlpara( pattern_transformation , gl_mat );
-
-				double rotation[3][3];
-				arGetInitRot( &marker, pattern_transformation , rotation );
-				arGetAngle(rotation,&a,&b,&c);
 
 				//	set the teapot transformation matrix
 				lockOutput();
@@ -312,10 +291,6 @@ namespace cg
 					glTransformationMatrix[13] = 0;
 					glTransformationMatrix[14] = 0;
 					glTransformationMatrix[15] = 1;
-
-					glEulerAngles[0] = blaf::rad2deg(a);
-					glEulerAngles[1] = blaf::rad2deg(b);
-					glEulerAngles[2] = blaf::rad2deg(c);
 				}
 				unlockOutput();
 

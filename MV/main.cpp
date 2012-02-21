@@ -29,9 +29,6 @@
 #include <string>
 using std::string;
 
-//#include <vector>
-//
-
 // include GLEW to access OpenGL 3.3 functions
 #include <GL/glew.h>
 
@@ -49,79 +46,48 @@ using std::string;
 
 #include "ar.h"
 
-#define	TEAPOT_WORLD
-#define	PATTERN_CONTROL
 
-//#define SHADER_GROUP_COUNT 3
-//#define SHADER_COUNT 4
-//
-//
-//std::ostream *f;
-VSMathLib *vsml;
-VSShaderLib shader1;
-VSShaderLib shader2;
 
-//	teapot cube colors
-//	0	black
-//	1	blue
-//	2	green
-//	3	cyan
-//	4	red
-//	5	magenta
-//	6	yellow
-//	7	white
-VSShaderLib shaders[8];
+VSMathLib *vsml;		//!<	Very Simple Math Library instance, used for drawing the scene.
 
-VSResModelLib teapot;
+
+VSShaderLib shaders[8];	//!<	Collection of shaders to draw the teapots in the different positions of the cube.
+						//!<	0 : black
+						//!<	1 : blue
+						//!<	2 : green
+						//!<	3 : cyan
+						//!<	4 : red
+						//!<	5 : magenta
+						//!<	6 : yellow
+						//!<	7 : white
+
+VSResModelLib teapot;	//!<	Model used to draw the teapots.
 
 
 
-//
-// Camera Position
-//
-float camX = 0, camY = 5, camZ = 5;
-
-float camDirection[4] = { 0.0f , 0.0f , -1.0f , 0.0f };
-float camPosition[4] = { 0.0f , 0.0f , 0.0f , 1.0f };
-float camTarget[4];
-float camUp[4] = { 0.0f , 1.0f , 0.0f , 0.0f };
-float camZoom = 5.0f;
-
-
-//
-//// Mouse Tracking Variables
-//int startX, startY, tracking = 0;
-//
-//// Camera Spherical Coordinates
-//float alpha = 0.0f, beta = 0.0f;
-//float r = 5.0f;
-//
-//// Frame counting and FPS computation
-//long myTime,timebase = 0,frame = 0;
-//char s[32];
-//
-//unsigned shader_now, shader_group_now;
-
-#include "player.h"
-using cg::Player;
-Player *player;
-
-#include "keyboard.h"
-
-#include "camera.h"
-using cg::Camera;
-Camera *cam;
-
-
-float glEulerAngles[3];
-float glTransformationMatrix[16];
+float camDirection[4] = { 0.0f , 0.0f , -1.0f , 0.0f };	//!<	Default camera looking direction.
+float camPosition[4] = { 0.0f , 0.0f , 0.0f , 1.0f };	//!<	Camera position, set by default to the world coordinate system origin.
+float camUp[4] = { 0.0f , 1.0f , 0.0f , 0.0f };			//!<	Default camera up vector (defines the vertical orientation of the camera).
+float camZoom = 5.0f;									//!<	Distance units between the camera and the target.
 
 
 
-// ------------------------------------------------------------
-//
-// Reshape Callback Function
-//
+float glTransformationMatrix[16];	//!<	Transformation matrix shared between the capture system and the virtual world.
+									//!<	The values in this matrix are set according to the ones retrieved from the ARToolKit library, ignoring any translation data.
+									//!<	Due to its shared nature, this matrix is controlled by a mutex primitive to avoid race conditions. Accesses must follow a call to cg::pi::ar::lockOutput() and be followed by a call to cg::pi::ar::unlockOutput()
+									//!<	\sa cg::pi::ar::lockOutput(), cg::pi::ar::unlockOutput()
+
+
+
+//!	Set the camera's perspective to fit the new window size.
+/*!
+	Changes the viewport to fit the entire window and changes the camera's perspective according to the new ratio of the horizontal and vertical dimensions.
+
+	Uses the Very Simple Math Library retrieved in the initialization.
+
+	\param	w	The new width of the window.
+	\param	h	The new height of the window.
+*/
 void changeSize(int w, int h) {
 
 	float ratio;
@@ -139,10 +105,15 @@ void changeSize(int w, int h) {
 }
 
 
-// ------------------------------------------------------------
-//
-// Render stuff
-//
+
+//!	Draws the scene in the 3-D virtual world.
+/*!
+	Retrieves the transformation matrix set by the ARToolKit library and computes the camera's new direction, up vector and target accordingly, using the lookAt function to correctly set the perspective.
+
+	Also draws the teapots in a cube shape around the origin of the world coordinate system, changing the shader used to set the teapot's color according to its position in the cube.
+
+	\sa cg::pi::ar::lockOutput(), cg::pi::ar::unlockOutput()
+*/
 void renderScene(void) {
 
 	glClear(
@@ -154,143 +125,32 @@ void renderScene(void) {
 	vsml->loadIdentity(VSMathLib::VIEW);
 
 	{
-#ifdef PATTERN_CONTROL
 		cg::pi::ar::lockOutput();
-		//for ( int i = 0 ; i < 4 ; ++i )
-		//{
-		//	for ( int j = 0 ; j < 4 ; ++j )
-		//	{
-		//		int k = j * 4 + i;
-		//		cout
-		//			<<	glTransformationMatrix[k]
-		//			<<	'\t';
-		//	}
-		//	cout
-		//		<<	endl;
-		//}
 		vsml->loadMatrix( VSMathLib::AUX0 , glTransformationMatrix );
 		cg::pi::ar::unlockOutput();
+
+
+
 		float newCamDirection[4];
+		float newCamTarget[4];
 		float newCamUp[4];
-		for ( int k = 0 ; k < 4 ; ++k )
-		{
-			newCamDirection[k] = camDirection[k];
-			newCamUp[k] = camUp[k];
-		}
+
 		vsml->multMatrixPoint( VSMathLib::AUX0 , camDirection , newCamDirection );
 		vsml->multMatrixPoint( VSMathLib::AUX0 , camUp , newCamUp );
-		//for ( int k = 0 ; k < 4 ; ++k )
-		//{
-		//	cout
-		//		<<	camDirection[k]
-		//	<<	'\t';
-		//}
-		//cout
-		//	<<	endl;
-		//getchar();
 		for ( int k = 0 ; k < 4 ; ++k )
 		{
-			camTarget[k] = camPosition[k] + newCamDirection[k] * camZoom;
+			newCamTarget[k] = camPosition[k] + newCamDirection[k] * camZoom;
 		}
 
 		vsml->lookAt(
 			camPosition[0] , camPosition[1] , camPosition[2] ,
-			camTarget[0] , camTarget[1] , camTarget[2] ,
-			//camUp[0] , camUp[1] , camUp[2] )
+			newCamTarget[0] , newCamTarget[1] , newCamTarget[2] ,
 			newCamUp[0] , newCamUp[1] , newCamUp[2] )
 			;
-#else
-		for ( int k = 0 ; k < 4 ; ++k )
-		{
-			camTarget[k] = camPosition[k] + camDirection[k] * camZoom;
-		}
-
-		vsml->lookAt(
-			camPosition[0] , camPosition[1] , camPosition[2] ,
-			camTarget[0] , camTarget[1] , camTarget[2] ,
-			camUp[0] , camUp[1] , camUp[2] )
-			;
-#endif
 	}
 
-	//vsml->lookAt(camX, camY, camZ, 0,0,0, 0,1,0);
-	//cam->lookAt(vsml);
-	//vsml->lookAt(
-	//	0.0f , 0.0f , 0.0f,
-	//	0.0f , 0.0f , -1.0f,
-	//	0.0f , 1.0f , 0.0f
-	//	);
-
-	//cg::pi::ar::lockOutput();
-	//{
-	//	for ( int i = 0 ; i < 4 ; ++i )
-	//	{
-	//		for ( int j = 0 ; j < 4 ; ++j )
-	//		{
-	//			int k = j * 4 + i;
-	//			cout
-	//				<<	glTransformationMatrix[k]
-	//			<<	'\t';
-	//		}
-	//		cout
-	//			<<	endl;
-	//	}
-	//	//for ( int w = 0 ; w < 3 ; ++w )
-	//	//{
-	//	//	cout
-	//	//		<<	glEulerAngles[w]
-	//	//		<<	'\t';
-	//	//}
-	//	//cout
-	//	//	<<	endl;
-
-
-	//	//float *glModelMatrix;
-	//	//float *glModifiedTransformationMatrix;
-	//	//glModelMatrix = vsml->get( VSMathLib::MODEL );
-	//	//vsml->loadMatrix( VSMathLib::AUX0 , glTransformationMatrix );
-	//	//vsml->multMatrix( VSMathLib::AUX0 , glModelMatrix );
-	//	//glModifiedTransformationMatrix = vsml->get( VSMathLib::AUX0 );
-	//	//vsml->loadMatrix( VSMathLib::MODEL , glModifiedTransformationMatrix );
-	//	vsml->loadMatrix( VSMathLib::VIEW , glTransformationMatrix );
-
-	//	//vsml->rotate( VSMathLib::MODEL , glEulerAngles[2] , 0.0f , 0.0f , 1.0f );
-	//	//vsml->rotate( VSMathLib::MODEL , glEulerAngles[1] , 0.0f , 1.0f , 0.0f );
-	//	//vsml->rotate( VSMathLib::MODEL , glEulerAngles[0] , 1.0f , 0.0f , 0.0f );
-	//}
-	//cg::pi::ar::unlockOutput();
 	
-	//std::cout
-	//	<<	'('
-	//	<<	camX
-	//	<<	','
-	//	<<	camY
-	//	<<	','
-	//	<<	camZ
-	//	<<	')'
-	//	<<	std::endl
-	//	<<	*cam
-	//	<<	std::endl;
-	{
-
-		// set the shader to render models
-		//glUseProgram(shaders[shader_group_now][shader_now].getProgramIndex());
-		//glUseProgram(shaders[0].getProgramIndex());
-		// start counting primitives
-		// render array of models
-		//for (float x = -2.0f ; x < 3.0f ; x += 2.0f) {
-		//	for (float z = -2.0f; z < 3.0f ; z += 2.0f) {
-		//		vsml->pushMatrix(VSMathLib::MODEL);
-		//		vsml->translate(VSMathLib::MODEL, x, 0.0f, z);
-		//		if ( x < -1.0f || x > 1.0f || z < -1.0f || z > 1.0f )
-		//			teapot.render();
-		//		vsml->popMatrix(VSMathLib::MODEL);
-		//	}
-		//}
-
-
-
-		//	Cube
+	{//	Cube [begin]
 		for ( float x = -10.0f ; x < 12.5f ; x += 5.0f )
 		{
 			int xColor = x < -7.5f || x > 7.5f;
@@ -315,89 +175,24 @@ void renderScene(void) {
 				}
 			}
 		}
-
-
-
-
-
-		// stop counting primitives
-
-		//{
-		//	//glUseProgram(player.shaders[shader_group_now].getProgramIndex());
-		//	glUseProgram(shader2.getProgramIndex());
-		//	vsml->pushMatrix(VSMathLib::MODEL);
-		//	//vsml->translate(VSMathLib::MODEL, player.position.x, player.position.y, player.position.z);
-		//	//vsml->translate(VSMathLib::MODEL, 0, 0, 0);
-		//	teapot.render();
-		//	vsml->popMatrix(VSMathLib::MODEL);
-		//}
-
-		{
-#ifdef PATTERN_CONTROL
-			//float originalDirection[4];
-			//float computedDirection[4];
-
-			//{
-			//	originalDirection[0] = player->direction.x();
-			//	originalDirection[1] = player->direction.y();
-			//	originalDirection[2] = player->direction.z();
-			//	originalDirection[3] = 1;
-			//}
-
-			//cg::pi::ar::lockOutput();
-			////for ( int w = 0 ; w < 3 ; ++w )
-			////{
-			////	cout
-			////		<<	glEulerAngles[w]
-			////		<<	'\t';
-			////	//}
-			//vsml->loadMatrix( VSMathLib::AUX0 , glTransformationMatrix );
-			//cg::pi::ar::unlockOutput();
-
-			////	check matrix
-			//float *glViewMatrix = vsml->get( VSMathLib::AUX0 );
-			//for ( int i = 0 ; i < 4 ; ++i )
-			//{
-			//	for ( int j = 0 ; j < 4 ; ++j )
-			//	{
-			//		int k = j * 4 + i;
-			//		cout
-			//			<<	glViewMatrix[k]
-			//		<<	'\t';
-			//	}
-			//	cout
-			//		<<	endl;
-			//}
-
-			//vsml->multMatrixPoint( VSMathLib::AUX0 , originalDirection , computedDirection );
-			//player->direction.x( computedDirection[0] );
-			//player->direction.y( computedDirection[1] );
-			//player->direction.z( computedDirection[2] );
-			//player->direction.normalize();
-#endif
-
-			//glUseProgram( shaders[0].getProgramIndex() );
-			////player->draw(vsml);
-			//vsml->pushMatrix( VSMathLib::MODEL );
-			//vsml->translate( VSMathLib::MODEL , 0.0 , 0.0 , 0.0 );
-			//teapot.render();
-			//vsml->popMatrix( VSMathLib::MODEL );
-		}
-	}
+	}// Cube [end]
 
 	glutSwapBuffers();
 }
 
 
 
+//!	Timer event to refresh the screen.
+/*!
+	Refreshes the screen every 33 miliseconds to keep a frame rate close to 30 frames per second.
 
-//#ifdef	PATTERN_CONTROL
+	/param	value	The identifier of the timer which called the event. Ignored in this case, as only one timer is created in the whole application.
+*/
 void timeElapsed(int value)
 {
 	glutPostRedisplay();
 	glutTimerFunc( 33 , timeElapsed , 0 );
 }
-//#endif
 
 //
 //// ------------------------------------------------------------
@@ -557,555 +352,16 @@ void timeElapsed(int value)
 
 
 
-// --------------------------------------------------------
-//
-// Shader Stuff
-//
-GLuint setupShaders() {
+//!	Initialize one of the shaders for the teapots to be placed in the scene.
+/*!
+	Every shader initialized with this function implements only a lighting model using Phong's algorithm with a point of light, changing only the diffuse component.
 
-	//// Shader for fonts and models
-	//shaders[0][0].init();
-	///*shader.loadShader(VSShaderLib::VERTEX_SHADER, "../shaders/dirlightdiffambpix.vert");
-	//shader.loadShader(VSShaderLib::FRAGMENT_SHADER, "shaders/dirlightdiffambpix.frag");*/
-	//shaders[0][0].loadShader(
-	//	VSShaderLib::VERTEX_SHADER,
-	//	"../shaders/light/direct/diffuse.vert.glsl")
-	//	;
-	//shaders[0][0].loadShader(
-	//	VSShaderLib::FRAGMENT_SHADER,
-	//	"../shaders/light/direct/diffuse.frag.glsl")
-	//	;
+	A total of eight different shaders may be initialized here, including the three primary colors RGB, the three secondary colors YCM, black and white.
 
-	//// set semantics for the shader variables
-	//shaders[0][0].setProgramOutput( 0 , "color" );
-	//shaders[0][0].setVertexAttribName(
-	//	VSShaderLib::VERTEX_COORD_ATTRIB,
-	//	"position")
-	//	;
-	////shader.setVertexAttribName(VSShaderLib::TEXTURE_COORD_ATTRIB, "texCoord");
-	//shaders[0][0].setVertexAttribName(
-	//	VSShaderLib::NORMAL_ATTRIB,
-	//	"normal")
-	//	;
+	\param	color	Defines the color to be defined. Also represents the index of the shader instance to be initialized. This value is truncated at the maximum allowed, if greater.
 
-	//shaders[0][0].prepareProgram();
-
-	//VSGLInfoLib::getProgramInfo(shaders[0][0].getProgramIndex());
-	//printf("%s\n", shaders[0][0].getAllInfoLogs().c_str());
-
-	////	uniforms
-	////float lpos[4] = { 1.0 , 0.0 , 1.0 , 0.0 };
-	////shaders[0].setUniform( "lightPos" , lpos );
-	//{
-	//	float ldir[3] = { 1.0 , 0.0 , 0.0 };
-	//	float ldif[3] = { 1.0 , 0.0 , 0.0 };
-	//	shaders[0][0].setUniform( "light_dir" , ldir );
-	//	shaders[0][0].setUniform( "diffuse" , ldif );
-	//}
-
-
-
-
-
-
-
-
-	////	shader#2
-	//// Shader for fonts and models
-	//shaders[0][1].init();
-	///*shader.loadShader(VSShaderLib::VERTEX_SHADER, "../shaders/dirlightdiffambpix.vert");
-	//shader.loadShader(VSShaderLib::FRAGMENT_SHADER, "shaders/dirlightdiffambpix.frag");*/
-	//shaders[0][1].loadShader(
-	//	VSShaderLib::VERTEX_SHADER,
-	//	"../shaders/light/direct/difamb.vert.glsl")
-	//	;
-	//shaders[0][1].loadShader(
-	//	VSShaderLib::FRAGMENT_SHADER,
-	//	"../shaders/light/direct/difamb.frag.glsl")
-	//	;
-
-	//// set semantics for the shader variables
-	//shaders[0][1].setProgramOutput( 0 , "color" );
-	//shaders[0][1].setVertexAttribName(
-	//	VSShaderLib::VERTEX_COORD_ATTRIB,
-	//	"position")
-	//	;
-	////shader.setVertexAttribName(VSShaderLib::TEXTURE_COORD_ATTRIB, "texCoord");
-	//shaders[0][1].setVertexAttribName(
-	//	VSShaderLib::NORMAL_ATTRIB,
-	//	"normal")
-	//	;
-
-	//shaders[0][1].prepareProgram();
-
-	//VSGLInfoLib::getProgramInfo(shaders[0][1].getProgramIndex());
-	//printf("%s\n", shaders[0][1].getAllInfoLogs().c_str());
-
-	////	uniforms
-	//{
-	//	float ldir[3] = { 1.0f , 0.0f , 0.0f };
-	//	float ldif[3] = { 1.0f , 0.0f , 0.0f };
-	//	float lamb[3] = { 0.3f , 0.0f , 0.0f };
-	//	shaders[0][1].setUniform( "light_dir" , ldir );
-	//	shaders[0][1].setUniform( "diffuse" , ldif );
-	//	shaders[0][1].setUniform( "ambient" , lamb );
-	//}
-	//
-
-
-
-
-
-
-
-	////	shader#3
-	//// Shader for fonts and models
-	//shaders[0][2].init();
-	///*shader.loadShader(VSShaderLib::VERTEX_SHADER, "../shaders/dirlightdiffambpix.vert");
-	//shader.loadShader(VSShaderLib::FRAGMENT_SHADER, "shaders/dirlightdiffambpix.frag");*/
-	//shaders[0][2].loadShader(
-	//	VSShaderLib::VERTEX_SHADER,
-	//	"../shaders/light/direct/gouraud.vert.glsl")
-	//	;
-	//shaders[0][2].loadShader(
-	//	VSShaderLib::FRAGMENT_SHADER,
-	//	"../shaders/light/direct/gouraud.frag.glsl")
-	//	;
-
-	//// set semantics for the shader variables
-	//shaders[0][2].setProgramOutput( 0 , "color" );
-	//shaders[0][2].setVertexAttribName(
-	//	VSShaderLib::VERTEX_COORD_ATTRIB,
-	//	"position")
-	//	;
-	////shader.setVertexAttribName(VSShaderLib::TEXTURE_COORD_ATTRIB, "texCoord");
-	//shaders[0][2].setVertexAttribName(
-	//	VSShaderLib::NORMAL_ATTRIB,
-	//	"normal")
-	//	;
-
-	//shaders[0][2].prepareProgram();
-
-	//VSGLInfoLib::getProgramInfo(shaders[0][2].getProgramIndex());
-	//printf("%s\n", shaders[0][2].getAllInfoLogs().c_str());
-
-	////	uniforms
-	//{
-	//	float ldir[3] = { 1.0f , 0.0f , 0.0f };
-	//	float ldif[3] = { 1.0f , 0.0f , 0.0f };
-	//	float lamb[3] = { 0.3f , 0.0f , 0.0f };
-	//	float lspc[3] = { 1.0f , 1.0f , 1.0f };
-	//	shaders[0][2].setUniform( "light_dir" , ldir );
-	//	shaders[0][2].setUniform( "diffuse" , ldif );
-	//	shaders[0][2].setUniform( "ambient" , lamb );
-	//	shaders[0][2].setUniform( "specular" , lspc );
-	//	shaders[0][2].setUniform( "shininess" , 100.0f );
-	//}
-
-
-
-
-	////	shader#4
-	//// Shader for fonts and models
-	//shaders[0][3].init();
-	///*shader.loadShader(VSShaderLib::VERTEX_SHADER, "../shaders/dirlightdiffambpix.vert");
-	//shader.loadShader(VSShaderLib::FRAGMENT_SHADER, "shaders/dirlightdiffambpix.frag");*/
-	//shaders[0][3].loadShader(
-	//	VSShaderLib::VERTEX_SHADER,
-	//	"../shaders/light/direct/phong.vert.glsl")
-	//	;
-	//shaders[0][3].loadShader(
-	//	VSShaderLib::FRAGMENT_SHADER,
-	//	"../shaders/light/direct/phong.frag.glsl")
-	//	;
-
-	//// set semantics for the shader variables
-	//shaders[0][3].setProgramOutput( 0 , "color" );
-	//shaders[0][3].setVertexAttribName(
-	//	VSShaderLib::VERTEX_COORD_ATTRIB,
-	//	"position")
-	//	;
-	////shader.setVertexAttribName(VSShaderLib::TEXTURE_COORD_ATTRIB, "texCoord");
-	//shaders[0][3].setVertexAttribName(
-	//	VSShaderLib::NORMAL_ATTRIB,
-	//	"normal")
-	//	;
-
-	//shaders[0][3].prepareProgram();
-
-	//VSGLInfoLib::getProgramInfo(shaders[0][3].getProgramIndex());
-	//printf("%s\n", shaders[0][3].getAllInfoLogs().c_str());
-
-	////	uniforms
-	//{
-	//	float ldir[3] = { 1.0f , 0.0f , 0.0f };
-	//	float ldif[3] = { 1.0f , 0.0f , 0.0f };
-	//	float lamb[3] = { 0.3f , 0.0f , 0.0f };
-	//	float lspc[3] = { 1.0f , 1.0f , 1.0f };
-	//	shaders[0][3].setUniform( "light_dir" , ldir );
-	//	shaders[0][3].setUniform( "diffuse" , ldif );
-	//	shaders[0][3].setUniform( "ambient" , lamb );
-	//	shaders[0][3].setUniform( "specular" , lspc );
-	//	shaders[0][3].setUniform( "shininess" , 100.0f );
-	//}
-
-
-
-
-
-	////	shader#5
-	//// Shader for fonts and models
-	//shaders[1][3].init();
-	///*shader.loadShader(VSShaderLib::VERTEX_SHADER, "../shaders/dirlightdiffambpix.vert");
-	//shader.loadShader(VSShaderLib::FRAGMENT_SHADER, "shaders/dirlightdiffambpix.frag");*/
-	//shaders[1][3].loadShader(
-	//	VSShaderLib::VERTEX_SHADER,
-	//	"../shaders/light/point/phong.vert.glsl")
-	//	;
-	//shaders[1][3].loadShader(
-	//	VSShaderLib::FRAGMENT_SHADER,
-	//	"../shaders/light/point/phong.frag.glsl")
-	//	;
-
-	//// set semantics for the shader variables
-	//shaders[1][3].setProgramOutput( 0 , "color" );
-	//shaders[1][3].setVertexAttribName(
-	//	VSShaderLib::VERTEX_COORD_ATTRIB,
-	//	"position")
-	//	;
-	////shader.setVertexAttribName(VSShaderLib::TEXTURE_COORD_ATTRIB, "texCoord");
-	//shaders[1][3].setVertexAttribName(
-	//	VSShaderLib::NORMAL_ATTRIB,
-	//	"normal")
-	//	;
-
-	//shaders[1][3].prepareProgram();
-
-	//VSGLInfoLib::getProgramInfo(shaders[1][3].getProgramIndex());
-	//printf("%s\n", shaders[1][3].getAllInfoLogs().c_str());
-
-	////	uniforms
-	//{
-	//	float lpos[4] = { 30.0 , 5.0 , 0.0 , 1.0 };
-	//	float ldif[3] = { 1.0 , 0.0 , 0.0 };
-	//	//float lamb[3] = { 0.3 , 0.0 , 0.0 };
-	//	float lspc[3] = { 1.0 , 1.0 , 1.0 };
-	//	shaders[1][3].setUniform( "lightPosition" , lpos );
-	//	shaders[1][3].setUniform( "diffuse" , ldif );
-	//	//shaders[1][3].setUniform( "ambient" , lamb );
-	//	shaders[1][3].setUniform( "specular" , lspc );
-	//	shaders[1][3].setUniform( "shininess" , 100.0f );
-	//}
-
-
-
-
-
-	////	shader#6
-	//// Shader for fonts and models
-	//shaders[2][3].init();
-	///*shader.loadShader(VSShaderLib::VERTEX_SHADER, "../shaders/dirlightdiffambpix.vert");
-	//shader.loadShader(VSShaderLib::FRAGMENT_SHADER, "shaders/dirlightdiffambpix.frag");*/
-	//shaders[2][3].loadShader(
-	//	VSShaderLib::VERTEX_SHADER,
-	//	"../shaders/light/spot/phong.vert.glsl")
-	//	;
-	//shaders[2][3].loadShader(
-	//	VSShaderLib::FRAGMENT_SHADER,
-	//	"../shaders/light/spot/phong.frag.glsl")
-	//	;
-
-	//// set semantics for the shader variables
-	//shaders[2][3].setProgramOutput( 0 , "color" );
-	//shaders[2][3].setVertexAttribName(
-	//	VSShaderLib::VERTEX_COORD_ATTRIB,
-	//	"position")
-	//	;
-	////shader.setVertexAttribName(VSShaderLib::TEXTURE_COORD_ATTRIB, "texCoord");
-	//shaders[2][3].setVertexAttribName(
-	//	VSShaderLib::NORMAL_ATTRIB,
-	//	"normal")
-	//	;
-
-	//shaders[2][3].prepareProgram();
-
-	//VSGLInfoLib::getProgramInfo(shaders[2][3].getProgramIndex());
-	//printf("%s\n", shaders[2][3].getAllInfoLogs().c_str());
-
-	////	uniforms
-	//{
-	//	float spos[4] = { 0.0 , 1.0 , 0.0 , 1.0 };
-	//	float sdir[3] = { 1.0 , -1.0 , 0.0 };
-	//	float ldif[3] = { 1.0 , 0.0 , 0.0 };
-	//	//float lamb[3] = { 0.3 , 0.0 , 0.0 };
-	//	float lspc[3] = { 1.0 , 1.0 , 1.0 };
-	//	shaders[2][3].setUniform( "spotPosition" , spos );
-	//	shaders[2][3].setUniform( "spotDirection" , sdir );
-	//	shaders[2][3].setUniform( "spotLimitAngle" , blaf::deg2rad(7.5f) );
-	//	shaders[2][3].setUniform( "diffuse" , ldif );
-	//	//shaders[1][3].setUniform( "ambient" , lamb );
-	//	shaders[2][3].setUniform( "specular" , lspc );
-	//	shaders[2][3].setUniform( "shininess" , 100.0f );
-	//}
-
-
-
-
-
-	/*
-	//	player shader#1
-	// Shader for fonts and models
-	player.shaders[0].init();
-	//shader.loadShader(VSShaderLib::VERTEX_SHADER, "../shaders/dirlightdiffambpix.vert");
-	//shader.loadShader(VSShaderLib::FRAGMENT_SHADER, "shaders/dirlightdiffambpix.frag");
-	player.shaders[0].loadShader(
-		VSShaderLib::VERTEX_SHADER,
-		"../shaders/light/direct/phong.vert.glsl")
-		;
-	player.shaders[0].loadShader(
-		VSShaderLib::FRAGMENT_SHADER,
-		"../shaders/light/direct/phong.frag.glsl")
-		;
-
-	// set semantics for the shader variables
-	player.shaders[0].setProgramOutput( 0 , "color" );
-	player.shaders[0].setVertexAttribName(
-		VSShaderLib::VERTEX_COORD_ATTRIB,
-		"position")
-		;
-	//shader.setVertexAttribName(VSShaderLib::TEXTURE_COORD_ATTRIB, "texCoord");
-	player.shaders[0].setVertexAttribName(
-		VSShaderLib::NORMAL_ATTRIB,
-		"normal")
-		;
-
-	player.shaders[0].prepareProgram();
-
-	VSGLInfoLib::getProgramInfo(player.shaders[0].getProgramIndex());
-	printf("%s\n", player.shaders[0].getAllInfoLogs().c_str());
-
-	//	uniforms
-	{
-		float ldir[3] = { 1.0 , 0.0 , 0.0 };
-		float ldif[3] = { 0.0 , 1.0 , 0.0 };
-		//float lamb[3] = { 0.3 , 0.0 , 0.0 };
-		float lspc[3] = { 1.0 , 1.0 , 1.0 };
-		player.shaders[0].setUniform( "light_dir" , ldir );
-		player.shaders[0].setUniform( "diffuse" , ldif );
-		//shaders[0][3].setUniform( "ambient" , lamb );
-		player.shaders[0].setUniform( "specular" , lspc );
-		player.shaders[0].setUniform( "shininess" , 100.0f );
-	}
-
-
-
-
-	//	player shader#2
-	// Shader for fonts and models
-	player.shaders[1].init();
-	//shader.loadShader(VSShaderLib::VERTEX_SHADER, "../shaders/dirlightdiffambpix.vert");
-	//shader.loadShader(VSShaderLib::FRAGMENT_SHADER, "shaders/dirlightdiffambpix.frag");
-	player.shaders[1].loadShader(
-		VSShaderLib::VERTEX_SHADER,
-		"../shaders/light/point/phong.vert.glsl")
-		;
-	player.shaders[1].loadShader(
-		VSShaderLib::FRAGMENT_SHADER,
-		"../shaders/light/point/phong.frag.glsl")
-		;
-
-	// set semantics for the shader variables
-	player.shaders[1].setProgramOutput( 0 , "color" );
-	player.shaders[1].setVertexAttribName(
-		VSShaderLib::VERTEX_COORD_ATTRIB,
-		"position")
-		;
-	//shader.setVertexAttribName(VSShaderLib::TEXTURE_COORD_ATTRIB, "texCoord");
-	player.shaders[1].setVertexAttribName(
-		VSShaderLib::NORMAL_ATTRIB,
-		"normal")
-		;
-
-	player.shaders[1].prepareProgram();
-
-	VSGLInfoLib::getProgramInfo(player.shaders[1].getProgramIndex());
-	printf("%s\n", player.shaders[1].getAllInfoLogs().c_str());
-
-	//	uniforms
-	{
-		float lpos[4] = { 30.0 , 5.0 , 0.0 , 1.0 };
-		float ldif[3] = { 0.0 , 1.0 , 0.0 };
-		//float lamb[3] = { 0.3 , 0.0 , 0.0 };
-		float lspc[3] = { 1.0 , 1.0 , 1.0 };
-		player.shaders[1].setUniform( "lightPosition" , lpos );
-		player.shaders[1].setUniform( "diffuse" , ldif );
-		//shaders[1][3].setUniform( "ambient" , lamb );
-		player.shaders[1].setUniform( "specular" , lspc );
-		player.shaders[1].setUniform( "shininess" , 100.0f );
-	}
-
-
-
-
-
-	//	player shader#3
-	// Shader for fonts and models
-	player.shaders[2].init();
-	//shader.loadShader(VSShaderLib::VERTEX_SHADER, "../shaders/dirlightdiffambpix.vert");
-	//shader.loadShader(VSShaderLib::FRAGMENT_SHADER, "shaders/dirlightdiffambpix.frag");
-	player.shaders[2].loadShader(
-		VSShaderLib::VERTEX_SHADER,
-		"../shaders/light/spot/phong.vert.glsl")
-		;
-	player.shaders[2].loadShader(
-		VSShaderLib::FRAGMENT_SHADER,
-		"../shaders/light/spot/phong.frag.glsl")
-		;
-
-	// set semantics for the shader variables
-	player.shaders[2].setProgramOutput( 0 , "color" );
-	player.shaders[2].setVertexAttribName(
-		VSShaderLib::VERTEX_COORD_ATTRIB,
-		"position")
-		;
-	//shader.setVertexAttribName(VSShaderLib::TEXTURE_COORD_ATTRIB, "texCoord");
-	player.shaders[2].setVertexAttribName(
-		VSShaderLib::NORMAL_ATTRIB,
-		"normal")
-		;
-
-	player.shaders[2].prepareProgram();
-
-	VSGLInfoLib::getProgramInfo(player.shaders[2].getProgramIndex());
-	printf("%s\n", player.shaders[2].getAllInfoLogs().c_str());
-
-	//	uniforms
-	{
-		float spos[4] = { 0.0 , 1.0 , 0.0 , 1.0 };
-		float sdir[3] = { 1.0 , -1.0 , 0.0 };
-		float ldif[3] = { 0.0 , 1.0 , 0.0 };
-		//float lamb[3] = { 0.3 , 0.0 , 0.0 };
-		float lspc[3] = { 1.0 , 1.0 , 1.0 };
-		player.shaders[2].setUniform( "spotPosition" , spos );
-		player.shaders[2].setUniform( "spotDirection" , sdir );
-		player.shaders[2].setUniform( "spotLimitAngle" , DEG2RAD(7.5f) );
-		player.shaders[2].setUniform( "diffuse" , ldif );
-		//shaders[1][3].setUniform( "ambient" , lamb );
-		player.shaders[2].setUniform( "specular" , lspc );
-		player.shaders[2].setUniform( "shininess" , 100.0f );
-	}
-	*/
-
-
-
-
-
-
-
-	//	shader1
-	shader1.init();
-	shader1.loadShader(
-		VSShaderLib::VERTEX_SHADER,
-		"../shaders/light/point/phong.vert.glsl")
-		;
-	shader1.loadShader(
-		VSShaderLib::FRAGMENT_SHADER,
-		"../shaders/light/point/phong.frag.glsl")
-		;
-
-	// set semantics for the shader variables
-	shader1.setProgramOutput( 0 , "color" );
-	shader1.setVertexAttribName(
-		VSShaderLib::VERTEX_COORD_ATTRIB,
-		"position")
-		;
-	shader1.setVertexAttribName(
-		VSShaderLib::NORMAL_ATTRIB,
-		"normal")
-		;
-
-	shader1.prepareProgram();
-
-	VSGLInfoLib::getProgramInfo(shader1.getProgramIndex());
-	printf("%s\n", shader1.getAllInfoLogs().c_str());
-
-	//	uniforms
-	{
-		float lpos[4] = { 30.0 , 5.0 , 0.0 , 1.0 };
-		float ldif[3] = { 1.0 , 0.0 , 0.0 };
-		//float lamb[3] = { 0.3 , 0.0 , 0.0 };
-		float lspc[3] = { 1.0 , 1.0 , 1.0 };
-		shader1.setUniform( "lightPosition" , lpos );
-		shader1.setUniform( "diffuse" , ldif );
-		//shader1.setUniform( "ambient" , lamb );
-		shader1.setUniform( "specular" , lspc );
-		shader1.setUniform( "shininess" , 100.0f );
-	}
-
-
-
-
-
-
-
-
-	//	shader2
-	shader2.init();
-	shader2.loadShader(
-		VSShaderLib::VERTEX_SHADER,
-		"../shaders/light/point/phong.vert.glsl")
-		;
-	shader2.loadShader(
-		VSShaderLib::FRAGMENT_SHADER,
-		"../shaders/light/point/phong.frag.glsl")
-		;
-
-	// set semantics for the shader variables
-	shader2.setProgramOutput( 0 , "color" );
-	shader2.setVertexAttribName(
-		VSShaderLib::VERTEX_COORD_ATTRIB,
-		"position")
-		;
-	//shader.setVertexAttribName(VSShaderLib::TEXTURE_COORD_ATTRIB, "texCoord");
-	shader2.setVertexAttribName(
-		VSShaderLib::NORMAL_ATTRIB,
-		"normal")
-		;
-
-	shader2.prepareProgram();
-
-	VSGLInfoLib::getProgramInfo(shader2.getProgramIndex());
-	printf("%s\n", shader2.getAllInfoLogs().c_str());
-
-	//	uniforms
-	{
-		float lpos[4] = { 30.0 , 5.0 , 0.0 , 1.0 };
-		float ldif[3] = { 0.0 , 1.0 , 0.0 };
-		//float lamb[3] = { 0.3 , 0.0 , 0.0 };
-		float lspc[3] = { 1.0 , 1.0 , 1.0 };
-		shader2.setUniform( "lightPosition" , lpos );
-		shader2.setUniform( "diffuse" , ldif );
-		//shader2.setUniform( "ambient" , lamb );
-		shader2.setUniform( "specular" , lspc );
-		shader2.setUniform( "shininess" , 100.0f );
-	}
-
-
-
-
-
-
-
-	
-
-
-
-
-	return(1);
-}
-
-
-
+	\sa	initCubeShaders()
+*/
 void initCubeSideShader( unsigned color )
 {
 	color = ( color > 7 ) ? 7 : color;
@@ -1179,8 +435,8 @@ void initCubeSideShader( unsigned color )
 		case 7://	white
 		default:
 			ldif[0] = 1.0;
-			ldif[0] = 1.0;
-			ldif[0] = 1.0;
+			ldif[1] = 1.0;
+			ldif[2] = 1.0;
 		}
 		float lspc[3] = { 1.0 , 1.0 , 1.0 };
 		shaders[color].setUniform( "lightPosition" , lpos );
@@ -1192,6 +448,12 @@ void initCubeSideShader( unsigned color )
 
 
 
+//!	Initialize all the shaders for the teapots to be placed in the scene.
+/*!
+	Calls the initializer function for every shader instance to be used with the teapots.
+
+	\sa	initCubeSideShader
+*/
 void initCubeShaders()
 {
 	for ( unsigned s = 0 ; s < 8 ; ++s )
@@ -1200,11 +462,15 @@ void initCubeShaders()
 
 
 
-// ------------------------------------------------------------
-//
-// Model loading and OpenGL setup
-//
-int init()
+//!	Define the OpenGL options, load the models to be used and set initial values for global variables.
+/*!
+	Loads the model for the teapots to be placed in the scene, aborting the program in case of failure.
+
+	Also, sets the transformation matrix to the identity.
+
+	Enables the depth test, multisampling and defines the background color to 50% gray.
+*/
+void init()
 {
 	// load models
 	if ( ! teapot.load("../models/teapot.3ds") )
@@ -1217,12 +483,6 @@ int init()
 		getchar();
 		exit(1);
 	}
-
-	player = new Player();
-
-	cg::keyboard::init(player);
-
-	cam = new Camera(player);
 
 	{
 		glTransformationMatrix[0] = 1;
@@ -1250,12 +510,20 @@ int init()
 	//glEnable(GL_CULL_FACE);
 	glEnable(GL_MULTISAMPLE);
 	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
-
-	return 1;
 }
 
 
 
+//!	Initialize the Very Simple Math Library.
+/*!
+	Retrieve the VSML instance and set the uniform names for the matrices:
+	- Project-View-Model
+	- Normal
+	- View-Model
+	- View
+
+	These matrices are required by the Phong lighting shaders, used to draw the teapots.
+*/
 void initVSL() {
 	// Init VSML
 	vsml = VSMathLib::getInstance();
@@ -1267,28 +535,23 @@ void initVSL() {
 
 
 
+//!	Initialize the environment, set windows and callbacks and call the application main loop.
+/*!
+	Initializes the GLUT library and context.
 
-//////////////////////////////////////////////////////////////////////////
-// Cleanup
-//
-void cleanup()
-{
-	delete cam;
-	delete player;
-}
+	Creates and sets the callbacks for the virtual world window (Teapot World).
 
+	Also initializes the GLEW library (required to load the models), and calls init(), initVSL() and initCubeShaders().
 
+	Initializes the ARToolKit library. The ARToolKit library is also responsible for calling the application main loop.
 
-// ------------------------------------------------------------
-//
-// Main function
-//
+	\sa	init(), initVSL(), initCubeShaders(), cg::pi::ar::init(), cg::pi::ar::run()
+*/
 int main(int argc, char **argv) {
 
 	//  GLUT initialization
 	glutInit(&argc, argv);
 
-#ifdef	TEAPOT_WORLD
 	glutInitDisplayMode(
 		GLUT_DEPTH |
 		GLUT_DOUBLE |
@@ -1307,17 +570,13 @@ int main(int argc, char **argv) {
 	//  Callback Registration
 	glutDisplayFunc(renderScene);
 	glutReshapeFunc(changeSize);
-//#ifndef	PATTERN_CONTROL
-//	glutIdleFunc(renderScene);
-//#else
-	glutTimerFunc( 1000 , timeElapsed , 0 );
-//#endif
+	glutTimerFunc( 33 , timeElapsed , 0 );
 
 	//	Mouse and Keyboard Callbacks
 	//glutKeyboardFunc(processKeys);
 	//{
-	glutKeyboardFunc(cg::keyboard::keyDown);
-	glutKeyboardUpFunc(cg::keyboard::keyUp);
+	//glutKeyboardFunc(cg::keyboard::keyDown);
+	//glutKeyboardUpFunc(cg::keyboard::keyUp);
 	//}
 	//glutMouseFunc(processMouseButtons);
 	//glutMotionFunc(processMouseMotion);
@@ -1340,25 +599,12 @@ int main(int argc, char **argv) {
 
 	VSGLInfoLib::getGeneralInfo();
 
-	setupShaders();
 	initCubeShaders();
 	init();
 	initVSL();
 
-#ifdef	PATTERN_CONTROL
-	cg::pi::ar::init(glTransformationMatrix,glEulerAngles);
+	cg::pi::ar::init(glTransformationMatrix);
 	cg::pi::ar::run();
-#else
-	//  GLUT main loop
-	glutMainLoop();
-#endif
-
-	cleanup();
-
-#else
-	cg::pi::ar::init();
-	cg::pi::ar::run();
-#endif
 
 	return 0;
 

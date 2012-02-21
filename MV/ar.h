@@ -11,7 +11,6 @@ namespace cg
 			// Initializes AR Toolkit
 			void init();
 			void init(float *glTransformationMatrix);
-			void init(float *glTransformationMatrix, float *glEulerAngles);
 
 			// Starts marker recognition
 			void run();
