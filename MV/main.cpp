@@ -52,14 +52,14 @@ VSMathLib *vsml;		//!<	Very Simple Math Library instance, used for drawing the s
 
 
 VSShaderLib shaders[8];	//!<	Collection of shaders to draw the teapots in the different positions of the cube.
-						//!<	0 : black
-						//!<	1 : blue
-						//!<	2 : green
-						//!<	3 : cyan
-						//!<	4 : red
-						//!<	5 : magenta
-						//!<	6 : yellow
-						//!<	7 : white
+						//!<	-	0	:	black
+						//!<	-	1	:	blue
+						//!<	-	2	:	green
+						//!<	-	3	:	cyan
+						//!<	-	4	:	red
+						//!<	-	5	:	magenta
+						//!<	-	6	:	yellow
+						//!<	-	7	:	white
 
 VSResModelLib teapot;	//!<	Model used to draw the teapots.
 
@@ -69,6 +69,15 @@ float camDirection[4] = { 0.0f , 0.0f , -1.0f , 0.0f };	//!<	Default camera look
 float camPosition[4] = { 0.0f , 0.0f , 0.0f , 1.0f };	//!<	Camera position, set by default to the world coordinate system origin.
 float camUp[4] = { 0.0f , 1.0f , 0.0f , 0.0f };			//!<	Default camera up vector (defines the vertical orientation of the camera).
 float camZoom = 5.0f;									//!<	Distance units between the camera and the target.
+
+
+
+int straightBeginMilis;				//!<	Time value in miliseconds returned by the GLUT library when beginning movement or refreshing the current position of the camera.
+float straightFactor;				//!<	Factor which influences how the movement is performed.
+									//!<	A positive value performs a forward movement, whereas a negative value will perform a backwards movement.
+									//!<	Absolute values greater then 1 increase velocity. Less than 1 decreases it.
+const float straightVelocity = 10;	//!<	Movement velocity.
+bool keyboardLowKeysDown[26];		//!<	Array of boolean flags to store which keys are down.
 
 
 
@@ -137,6 +146,27 @@ void renderScene(void) {
 
 		vsml->multMatrixPoint( VSMathLib::AUX0 , camDirection , newCamDirection );
 		vsml->multMatrixPoint( VSMathLib::AUX0 , camUp , newCamUp );
+
+		{//	movement
+			if ( straightFactor )
+			{
+				if ( straightBeginMilis )
+				{
+					int ms = glutGet( GLUT_ELAPSED_TIME );
+					int dms = ms - straightBeginMilis;
+					straightBeginMilis = ms;
+					float dt = dms * 0.001;
+					float ds = straightVelocity * dt * straightFactor;
+					for ( int k = 0 ; k < 4 ; ++k )
+					{
+						camPosition[k] += newCamDirection[k] * ds;
+					}
+				}
+				else
+					straightBeginMilis = glutGet( GLUT_ELAPSED_TIME );
+			}
+		}
+
 		for ( int k = 0 ; k < 4 ; ++k )
 		{
 			newCamTarget[k] = camPosition[k] + newCamDirection[k] * camZoom;
@@ -182,7 +212,7 @@ void renderScene(void) {
 
 
 
-//!	Timer event to refresh the screen.
+//!	Timer event handler to refresh the screen.
 /*!
 	Refreshes the screen every 33 miliseconds to keep a frame rate close to 30 frames per second.
 
@@ -194,161 +224,95 @@ void timeElapsed(int value)
 	glutTimerFunc( 33 , timeElapsed , 0 );
 }
 
-//
-//// ------------------------------------------------------------
-////
-//// Events from the Keyboard
-////
-//
-//void processKeys(unsigned char key, int xx, int yy)
-//{
-//	switch(key) {
-//
-//	case 27:
-//
-//		glutLeaveMainLoop();
-//		break;
-//
-//	case 'z': r -= 0.1f;
-//		camX = r * sin(alpha * 3.14f / 180.0f) * cos(beta * 3.14f / 180.0f);
-//		camZ = r * cos(alpha * 3.14f / 180.0f) * cos(beta * 3.14f / 180.0f);
-//		camY = r *   						     sin(beta * 3.14f / 180.0f);
-//		break;
-//	case 'x': r += 0.1f;
-//		camX = r * sin(alpha * 3.14f / 180.0f) * cos(beta * 3.14f / 180.0f);
-//		camZ = r * cos(alpha * 3.14f / 180.0f) * cos(beta * 3.14f / 180.0f);
-//		camY = r *   						     sin(beta * 3.14f / 180.0f);
-//		break;
-//	case 'm': glEnable(GL_MULTISAMPLE); break;
-//	case 'n': glDisable(GL_MULTISAMPLE); break;
-//	case 'k': VSProfileLib::Reset(); break;
-//	case 'p':
-//		{
-//			std::string s = VSProfileLib::DumpLevels();
-//			printf("%s\n", s.c_str());
-//		}
-//		break;
-//
-//
-//
-//	case 'l':
-//		shader_now = ( shader_now + 1 ) % SHADER_COUNT;
-//		//printf("Current shader: %d\n", shader_now);
-//		return;
-//	case 'L':
-//		if (shader_now)
-//			shader_now = ( shader_now - 1 ) % SHADER_COUNT;
-//		else
-//			shader_now = SHADER_COUNT - 1;
-//		return;
-//	case 'o':
-//		shader_group_now = ( shader_group_now + 1 ) % SHADER_GROUP_COUNT;
-//		return;
-//
-//
-//
-//
-//
-//
-//	}
-//	camX = r * sin(alpha * 3.14f / 180.0f) * cos(beta * 3.14f / 180.0f);
-//	camZ = r * cos(alpha * 3.14f / 180.0f) * cos(beta * 3.14f / 180.0f);
-//	camY = r *   						     sin(beta * 3.14f / 180.0f);
-//
-//	//  uncomment this if not using an idle func
-//	//	glutPostRedisplay();
-//}
-//
-//
-//// ------------------------------------------------------------
-////
-//// Mouse Events
-////
-//
-//void processMouseButtons(int button, int state, int xx, int yy)
-//{
-//	// start tracking the mouse
-//	if (state == GLUT_DOWN)  {
-//		startX = xx;
-//		startY = yy;
-//		if (button == GLUT_LEFT_BUTTON)
-//			tracking = 1;
-//		else if (button == GLUT_RIGHT_BUTTON)
-//			tracking = 2;
-//	}
-//
-//	//stop tracking the mouse
-//	else if (state == GLUT_UP) {
-//		if (tracking == 1) {
-//			alpha -= (xx - startX);
-//			beta += (yy - startY);
-//		}
-//		else if (tracking == 2) {
-//			r += (yy - startY) * 0.01f;
-//		}
-//		tracking = 0;
-//	}
-//}
-//
-//// Track mouse motion while buttons are pressed
-//void processMouseMotion(int xx, int yy)
-//{
-//
-//	int deltaX, deltaY;
-//	float alphaAux, betaAux;
-//	float rAux;
-//
-//	deltaX =  - xx + startX;
-//	deltaY =    yy - startY;
-//
-//	// left mouse button: move camera
-//	if (tracking == 1) {
-//
-//
-//		alphaAux = alpha + deltaX;
-//		betaAux = beta + deltaY;
-//
-//		if (betaAux > 85.0f)
-//			betaAux = 85.0f;
-//		else if (betaAux < -85.0f)
-//			betaAux = -85.0f;
-//
-//		rAux = r;
-//
-//		camX = rAux * sin(alphaAux * 3.14f / 180.0f) * cos(betaAux * 3.14f / 180.0f);
-//		camZ = rAux * cos(alphaAux * 3.14f / 180.0f) * cos(betaAux * 3.14f / 180.0f);
-//		camY = rAux *   						       sin(betaAux * 3.14f / 180.0f);
-//	}
-//	// right mouse button: zoom
-//	else if (tracking == 2) {
-//
-//		alphaAux = alpha;
-//		betaAux = beta;
-//		rAux = r + (deltaY * 0.01f);
-//
-//		camX = rAux * sin(alphaAux * 3.14f / 180.0f) * cos(betaAux * 3.14f / 180.0f);
-//		camZ = rAux * cos(alphaAux * 3.14f / 180.0f) * cos(betaAux * 3.14f / 180.0f);
-//		camY = rAux *   						       sin(betaAux * 3.14f / 180.0f);
-//	}
-//
-//
-//	//  uncomment this if not using an idle func
-//	//	glutPostRedisplay();
-//}
-//
-//
-//void mouseWheel(int wheel, int direction, int x, int y) {
-//
-//	r += direction * 0.1f;
-//	camX = r * sin(alpha * 3.14f / 180.0f) * cos(beta * 3.14f / 180.0f);
-//	camZ = r * cos(alpha * 3.14f / 180.0f) * cos(beta * 3.14f / 180.0f);
-//	camY = r *   						     sin(beta * 3.14f / 180.0f);
-//
-//	//  uncomment this if not using an idle func
-//	//	glutPostRedisplay();
-//}
-//
-//
+
+
+//!	Keyboard key press event handler.
+/*!
+	-	w	If moving backwards, stop. Otherwise, start moving forward.
+	-	s	If moving forward, stop. Otherwise, start moving backwards.
+*/
+void keyPress(unsigned char key, int xx, int yy)
+{
+	switch (key)
+	{
+	case 'w':
+		if ( ! keyboardLowKeysDown['w'-'a'] )
+		{
+			if ( keyboardLowKeysDown['s'-'a'] )
+			{
+				straightFactor = 0;
+				straightBeginMilis = 0;
+			}
+			else
+			{
+				straightFactor = 1;
+				straightBeginMilis = glutGet( GLUT_ELAPSED_TIME );
+			}
+		}
+		break;
+	case 's':
+		if ( ! keyboardLowKeysDown['s'-'a'] )
+		{
+			if ( keyboardLowKeysDown['w'-'a'] )
+			{
+				straightFactor = 0;
+				straightBeginMilis = 0;
+			}
+			else
+			{
+				straightFactor = -1;
+				straightBeginMilis = glutGet( GLUT_ELAPSED_TIME );
+			}
+		}
+		break;
+	}
+	if ( islower(key) )
+		keyboardLowKeysDown[key-'a'] = true;
+}
+
+//!	Keyboard key up event handler.
+/*!
+	-	w	If moving forward, stop. Otherwise, start moving backwards.
+	-	s	If moving backwards, stop. Otherwise, start moving forward.
+*/
+void keyUp(unsigned char key, int xx, int yy)
+{
+	switch (key)
+	{
+	case 'w':
+		if ( keyboardLowKeysDown['w'-'a'] )
+		{
+			if ( keyboardLowKeysDown['s'-'a'] )
+			{
+				straightFactor = -1;
+				straightBeginMilis = glutGet( GLUT_ELAPSED_TIME );
+			}
+			else
+			{
+				straightFactor = 0;
+				straightBeginMilis = 0;
+			}
+		}
+		break;
+	case 's':
+		if ( keyboardLowKeysDown['s'-'a'] )
+		{
+			if ( keyboardLowKeysDown['w'-'a'] )
+			{
+				straightFactor = 1;
+				straightBeginMilis = glutGet( GLUT_ELAPSED_TIME );
+			}
+			else
+			{
+				straightFactor = 0;
+				straightBeginMilis = 0;
+			}
+		}
+		break;
+	}
+	if ( islower(key) )
+		keyboardLowKeysDown[key-'a'] = false;
+}
 
 
 
@@ -576,6 +540,8 @@ int main(int argc, char **argv) {
 	//glutKeyboardFunc(processKeys);
 	//{
 	//glutKeyboardFunc(cg::keyboard::keyDown);
+	glutKeyboardFunc(keyPress);
+	glutKeyboardUpFunc(keyUp);
 	//glutKeyboardUpFunc(cg::keyboard::keyUp);
 	//}
 	//glutMouseFunc(processMouseButtons);

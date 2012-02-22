@@ -236,7 +236,7 @@ namespace cg
 
 					glTransformationMatrix[8] = 0;
 					glTransformationMatrix[9] = 0;
-					glTransformationMatrix[10] = 1;
+					glTransformationMatrix[10] = -1;
 					glTransformationMatrix[11] = 0;
 
 					glTransformationMatrix[12] = 0;

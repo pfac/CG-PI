@@ -18,7 +18,11 @@ void \hyperlink{main_8cpp_a33e20b37682a0492a9e95d13bef17f02}{change\-Size} (int 
 void \hyperlink{main_8cpp_a2a96aed746d13d9b42d7888e156045f6}{render\-Scene} (void)
 \begin{DoxyCompactList}\small\item\em \-Draws the scene in the 3-\/\-D virtual world. \end{DoxyCompactList}\item 
 void \hyperlink{main_8cpp_a2b379aae5ee843bdd70395da24980367}{time\-Elapsed} (int value)
-\begin{DoxyCompactList}\small\item\em \-Timer event to refresh the screen. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em \-Timer event handler to refresh the screen. \end{DoxyCompactList}\item 
+void \hyperlink{main_8cpp_a960942977ead029f301fabb5512e999c}{key\-Press} (unsigned char key, int xx, int yy)
+\begin{DoxyCompactList}\small\item\em \-Keyboard key press event handler. \end{DoxyCompactList}\item 
+void \hyperlink{main_8cpp_ad7c42d79daedd2fd2f6a3221e7fdf675}{key\-Up} (unsigned char key, int xx, int yy)
+\begin{DoxyCompactList}\small\item\em \-Keyboard key up event handler. \end{DoxyCompactList}\item 
 void \hyperlink{main_8cpp_a882b2eef973c4038f20d8f4c99909754}{init\-Cube\-Side\-Shader} (unsigned color)
 \begin{DoxyCompactList}\small\item\em \-Initialize one of the shaders for the teapots to be placed in the scene. \end{DoxyCompactList}\item 
 void \hyperlink{main_8cpp_aee951e1575b8606d4b73fe8ad464adf3}{init\-Cube\-Shaders} ()
@@ -46,6 +50,14 @@ float \hyperlink{main_8cpp_ac930ffe3beb3cb4229a4bd7eac77047c}{cam\-Up} \mbox{[}4
 \begin{DoxyCompactList}\small\item\em \-Default camera up vector (defines the vertical orientation of the camera). \end{DoxyCompactList}\item 
 float \hyperlink{main_8cpp_a30d778c0b090e943a6f61a7aceb88827}{cam\-Zoom} = 5.\-0f
 \begin{DoxyCompactList}\small\item\em \-Distance units between the camera and the target. \end{DoxyCompactList}\item 
+int \hyperlink{main_8cpp_af232aac2aecea58857955f5b1619b1e5}{straight\-Begin\-Milis}
+\begin{DoxyCompactList}\small\item\em \-Time value in miliseconds returned by the \-G\-L\-U\-T library when beginning movement or refreshing the current position of the camera. \end{DoxyCompactList}\item 
+float \hyperlink{main_8cpp_aaabdb6d6d87042d929ff2130a206e8a7}{straight\-Factor}
+\item 
+const float \hyperlink{main_8cpp_a96d237e535f28667698d2a5388ccc805}{straight\-Velocity} = 10
+\begin{DoxyCompactList}\small\item\em \-Movement velocity. \end{DoxyCompactList}\item 
+bool \hyperlink{main_8cpp_ad6e5537dc53343dcfb9e48102f86ae39}{keyboard\-Low\-Keys\-Down} \mbox{[}26\mbox{]}
+\begin{DoxyCompactList}\small\item\em \-Array of boolean flags to store which keys are down. \end{DoxyCompactList}\item 
 float \hyperlink{main_8cpp_a629aea9fa74244b9dc8f2ae5e420c291}{gl\-Transformation\-Matrix} \mbox{[}16\mbox{]}
 \end{DoxyCompactItemize}
 
@@ -147,7 +159,41 @@ float \hyperlink{main_8cpp_a629aea9fa74244b9dc8f2ae5e420c291}{gl\-Transformation
 \item \-View
 \end{DoxyItemize}
 
-\-These matrices are required by the \-Phong lighting shaders, used to draw the teapots. \hypertarget{main_8cpp_a3c04138a5bfe5d72780bb7e82a18e627}{\index{main.\-cpp@{main.\-cpp}!main@{main}}
+\-These matrices are required by the \-Phong lighting shaders, used to draw the teapots. \hypertarget{main_8cpp_a960942977ead029f301fabb5512e999c}{\index{main.\-cpp@{main.\-cpp}!key\-Press@{key\-Press}}
+\index{key\-Press@{key\-Press}!main.cpp@{main.\-cpp}}
+\subsubsection[{key\-Press}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf key\-Press} (
+\begin{DoxyParamCaption}
+\item[{unsigned char}]{key, }
+\item[{int}]{xx, }
+\item[{int}]{yy}
+\end{DoxyParamCaption}
+)}}\label{main_8cpp_a960942977ead029f301fabb5512e999c}
+
+
+\-Keyboard key press event handler. 
+
+
+\begin{DoxyItemize}
+\item w \-If moving backwards, stop. \-Otherwise, start moving forward.
+\item s \-If moving forward, stop. \-Otherwise, start moving backwards. 
+\end{DoxyItemize}\hypertarget{main_8cpp_ad7c42d79daedd2fd2f6a3221e7fdf675}{\index{main.\-cpp@{main.\-cpp}!key\-Up@{key\-Up}}
+\index{key\-Up@{key\-Up}!main.cpp@{main.\-cpp}}
+\subsubsection[{key\-Up}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf key\-Up} (
+\begin{DoxyParamCaption}
+\item[{unsigned char}]{key, }
+\item[{int}]{xx, }
+\item[{int}]{yy}
+\end{DoxyParamCaption}
+)}}\label{main_8cpp_ad7c42d79daedd2fd2f6a3221e7fdf675}
+
+
+\-Keyboard key up event handler. 
+
+
+\begin{DoxyItemize}
+\item w \-If moving forward, stop. \-Otherwise, start moving backwards.
+\item s \-If moving backwards, stop. \-Otherwise, start moving forward. 
+\end{DoxyItemize}\hypertarget{main_8cpp_a3c04138a5bfe5d72780bb7e82a18e627}{\index{main.\-cpp@{main.\-cpp}!main@{main}}
 \index{main@{main}!main.cpp@{main.\-cpp}}
 \subsubsection[{main}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf main} (
 \begin{DoxyParamCaption}
@@ -197,7 +243,7 @@ float \hyperlink{main_8cpp_a629aea9fa74244b9dc8f2ae5e420c291}{gl\-Transformation
 )}}\label{main_8cpp_a2b379aae5ee843bdd70395da24980367}
 
 
-\-Timer event to refresh the screen. 
+\-Timer event handler to refresh the screen. 
 
 \-Refreshes the screen every 33 miliseconds to keep a frame rate close to 30 frames per second.
 
@@ -238,10 +284,43 @@ float \hyperlink{main_8cpp_a629aea9fa74244b9dc8f2ae5e420c291}{gl\-Transformation
 \-Transformation matrix shared between the capture system and the virtual world. \-The values in this matrix are set according to the ones retrieved from the \-A\-R\-Tool\-Kit library, ignoring any translation data. \-Due to its shared nature, this matrix is controlled by a mutex primitive to avoid race conditions. \-Accesses must follow a call to \hyperlink{namespacecg_1_1pi_1_1ar_a231a9527f1d785d52b483821b8e4afd9}{cg\-::pi\-::ar\-::lock\-Output()} and be followed by a call to \hyperlink{namespacecg_1_1pi_1_1ar_a975cc0ca7a96016024e8cebb34550de4}{cg\-::pi\-::ar\-::unlock\-Output()} \begin{DoxySeeAlso}{\-See also}
 \hyperlink{namespacecg_1_1pi_1_1ar_a231a9527f1d785d52b483821b8e4afd9}{cg\-::pi\-::ar\-::lock\-Output()}, \hyperlink{namespacecg_1_1pi_1_1ar_a975cc0ca7a96016024e8cebb34550de4}{cg\-::pi\-::ar\-::unlock\-Output()} 
 \end{DoxySeeAlso}
+\hypertarget{main_8cpp_ad6e5537dc53343dcfb9e48102f86ae39}{\index{main.\-cpp@{main.\-cpp}!keyboard\-Low\-Keys\-Down@{keyboard\-Low\-Keys\-Down}}
+\index{keyboard\-Low\-Keys\-Down@{keyboard\-Low\-Keys\-Down}!main.cpp@{main.\-cpp}}
+\subsubsection[{keyboard\-Low\-Keys\-Down}]{\setlength{\rightskip}{0pt plus 5cm}bool {\bf keyboard\-Low\-Keys\-Down}\mbox{[}26\mbox{]}}}\label{main_8cpp_ad6e5537dc53343dcfb9e48102f86ae39}
+
+
+\-Array of boolean flags to store which keys are down. 
+
 \hypertarget{main_8cpp_aa1d03b5feb3634a31b170539ecd834a4}{\index{main.\-cpp@{main.\-cpp}!shaders@{shaders}}
 \index{shaders@{shaders}!main.cpp@{main.\-cpp}}
 \subsubsection[{shaders}]{\setlength{\rightskip}{0pt plus 5cm}{\bf \-V\-S\-Shader\-Lib} {\bf shaders}\mbox{[}8\mbox{]}}}\label{main_8cpp_aa1d03b5feb3634a31b170539ecd834a4}
-\-Collection of shaders to draw the teapots in the different positions of the cube. 0 \-: black 1 \-: blue 2 \-: green 3 \-: cyan 4 \-: red 5 \-: magenta 6 \-: yellow 7 \-: white \hypertarget{main_8cpp_af2a77067e59758e48e8a3a19f632fc25}{\index{main.\-cpp@{main.\-cpp}!teapot@{teapot}}
+\-Collection of shaders to draw the teapots in the different positions of the cube. -\/ 0 \-: black
+\begin{DoxyItemize}
+\item 1 \-: blue
+\item 2 \-: green
+\item 3 \-: cyan
+\item 4 \-: red
+\item 5 \-: magenta
+\item 6 \-: yellow
+\item 7 \-: white 
+\end{DoxyItemize}\hypertarget{main_8cpp_af232aac2aecea58857955f5b1619b1e5}{\index{main.\-cpp@{main.\-cpp}!straight\-Begin\-Milis@{straight\-Begin\-Milis}}
+\index{straight\-Begin\-Milis@{straight\-Begin\-Milis}!main.cpp@{main.\-cpp}}
+\subsubsection[{straight\-Begin\-Milis}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf straight\-Begin\-Milis}}}\label{main_8cpp_af232aac2aecea58857955f5b1619b1e5}
+
+
+\-Time value in miliseconds returned by the \-G\-L\-U\-T library when beginning movement or refreshing the current position of the camera. 
+
+\hypertarget{main_8cpp_aaabdb6d6d87042d929ff2130a206e8a7}{\index{main.\-cpp@{main.\-cpp}!straight\-Factor@{straight\-Factor}}
+\index{straight\-Factor@{straight\-Factor}!main.cpp@{main.\-cpp}}
+\subsubsection[{straight\-Factor}]{\setlength{\rightskip}{0pt plus 5cm}float {\bf straight\-Factor}}}\label{main_8cpp_aaabdb6d6d87042d929ff2130a206e8a7}
+\-Factor which influences how the movement is performed. \-A positive value performs a forward movement, whereas a negative value will perform a backwards movement. \-Absolute values greater then 1 increase velocity. \-Less than 1 decreases it. \hypertarget{main_8cpp_a96d237e535f28667698d2a5388ccc805}{\index{main.\-cpp@{main.\-cpp}!straight\-Velocity@{straight\-Velocity}}
+\index{straight\-Velocity@{straight\-Velocity}!main.cpp@{main.\-cpp}}
+\subsubsection[{straight\-Velocity}]{\setlength{\rightskip}{0pt plus 5cm}const float {\bf straight\-Velocity} = 10}}\label{main_8cpp_a96d237e535f28667698d2a5388ccc805}
+
+
+\-Movement velocity. 
+
+\hypertarget{main_8cpp_af2a77067e59758e48e8a3a19f632fc25}{\index{main.\-cpp@{main.\-cpp}!teapot@{teapot}}
 \index{teapot@{teapot}!main.cpp@{main.\-cpp}}
 \subsubsection[{teapot}]{\setlength{\rightskip}{0pt plus 5cm}{\bf \-V\-S\-Res\-Model\-Lib} {\bf teapot}}}\label{main_8cpp_af2a77067e59758e48e8a3a19f632fc25}
 

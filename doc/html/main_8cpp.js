@@ -5,6 +5,8 @@ var main_8cpp =
     [ "initCubeShaders", "main_8cpp.html#aee951e1575b8606d4b73fe8ad464adf3", null ],
     [ "initCubeSideShader", "main_8cpp.html#a882b2eef973c4038f20d8f4c99909754", null ],
     [ "initVSL", "main_8cpp.html#a3fad4f247cd06a520ea035e21f7cecb2", null ],
+    [ "keyPress", "main_8cpp.html#a960942977ead029f301fabb5512e999c", null ],
+    [ "keyUp", "main_8cpp.html#ad7c42d79daedd2fd2f6a3221e7fdf675", null ],
     [ "main", "main_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627", null ],
     [ "renderScene", "main_8cpp.html#a2a96aed746d13d9b42d7888e156045f6", null ],
     [ "timeElapsed", "main_8cpp.html#a2b379aae5ee843bdd70395da24980367", null ],
@@ -13,7 +15,11 @@ var main_8cpp =
     [ "camUp", "main_8cpp.html#ac930ffe3beb3cb4229a4bd7eac77047c", null ],
     [ "camZoom", "main_8cpp.html#a30d778c0b090e943a6f61a7aceb88827", null ],
     [ "glTransformationMatrix", "main_8cpp.html#a629aea9fa74244b9dc8f2ae5e420c291", null ],
+    [ "keyboardLowKeysDown", "main_8cpp.html#ad6e5537dc53343dcfb9e48102f86ae39", null ],
     [ "shaders", "main_8cpp.html#aa1d03b5feb3634a31b170539ecd834a4", null ],
+    [ "straightBeginMilis", "main_8cpp.html#af232aac2aecea58857955f5b1619b1e5", null ],
+    [ "straightFactor", "main_8cpp.html#aaabdb6d6d87042d929ff2130a206e8a7", null ],
+    [ "straightVelocity", "main_8cpp.html#a96d237e535f28667698d2a5388ccc805", null ],
     [ "teapot", "main_8cpp.html#af2a77067e59758e48e8a3a19f632fc25", null ],
     [ "vsml", "main_8cpp.html#a6614b7040f9b45cfc10b66b74eb6deeb", null ]
 ];

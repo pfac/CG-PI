@@ -118,7 +118,11 @@ Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8cpp.html#a2a96aed746d13d9b42d7888e156045f6">renderScene</a> (void)</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Draws the scene in the 3-D virtual world.  <a href="#a2a96aed746d13d9b42d7888e156045f6"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8cpp.html#a2b379aae5ee843bdd70395da24980367">timeElapsed</a> (int value)</td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Timer event to refresh the screen.  <a href="#a2b379aae5ee843bdd70395da24980367"></a><br/></td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Timer event handler to refresh the screen.  <a href="#a2b379aae5ee843bdd70395da24980367"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8cpp.html#a960942977ead029f301fabb5512e999c">keyPress</a> (unsigned char key, int xx, int yy)</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Keyboard key press event handler.  <a href="#a960942977ead029f301fabb5512e999c"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8cpp.html#ad7c42d79daedd2fd2f6a3221e7fdf675">keyUp</a> (unsigned char key, int xx, int yy)</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Keyboard key up event handler.  <a href="#ad7c42d79daedd2fd2f6a3221e7fdf675"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8cpp.html#a882b2eef973c4038f20d8f4c99909754">initCubeSideShader</a> (unsigned color)</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize one of the shaders for the teapots to be placed in the scene.  <a href="#a882b2eef973c4038f20d8f4c99909754"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8cpp.html#aee951e1575b8606d4b73fe8ad464adf3">initCubeShaders</a> ()</td></tr>
@@ -144,6 +148,13 @@ Variables</h2></td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Default camera up vector (defines the vertical orientation of the camera).  <a href="#ac930ffe3beb3cb4229a4bd7eac77047c"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8cpp.html#a30d778c0b090e943a6f61a7aceb88827">camZoom</a> = 5.0f</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Distance units between the camera and the target.  <a href="#a30d778c0b090e943a6f61a7aceb88827"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8cpp.html#af232aac2aecea58857955f5b1619b1e5">straightBeginMilis</a></td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Time value in miliseconds returned by the GLUT library when beginning movement or refreshing the current position of the camera.  <a href="#af232aac2aecea58857955f5b1619b1e5"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8cpp.html#aaabdb6d6d87042d929ff2130a206e8a7">straightFactor</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">const float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8cpp.html#a96d237e535f28667698d2a5388ccc805">straightVelocity</a> = 10</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Movement velocity.  <a href="#a96d237e535f28667698d2a5388ccc805"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8cpp.html#ad6e5537dc53343dcfb9e48102f86ae39">keyboardLowKeysDown</a> [26]</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Array of boolean flags to store which keys are down.  <a href="#ad6e5537dc53343dcfb9e48102f86ae39"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8cpp.html#a629aea9fa74244b9dc8f2ae5e420c291">glTransformationMatrix</a> [16]</td></tr>
 </table>
 <hr/><h2>Function Documentation</h2>
@@ -280,6 +291,84 @@ Variables</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="a960942977ead029f301fabb5512e999c"></a><!-- doxytag: member="main.cpp::keyPress" ref="a960942977ead029f301fabb5512e999c" args="(unsigned char key, int xx, int yy)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="main_8cpp.html#a960942977ead029f301fabb5512e999c">keyPress</a> </td>
+          <td>(</td>
+          <td class="paramtype">unsigned char&#160;</td>
+          <td class="paramname"><em>key</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>xx</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>yy</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Keyboard key press event handler. </p>
+<ul>
+<li>w If moving backwards, stop. Otherwise, start moving forward.</li>
+<li>s If moving forward, stop. Otherwise, start moving backwards. </li>
+</ul>
+
+</div>
+</div>
+<a class="anchor" id="ad7c42d79daedd2fd2f6a3221e7fdf675"></a><!-- doxytag: member="main.cpp::keyUp" ref="ad7c42d79daedd2fd2f6a3221e7fdf675" args="(unsigned char key, int xx, int yy)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="main_8cpp.html#ad7c42d79daedd2fd2f6a3221e7fdf675">keyUp</a> </td>
+          <td>(</td>
+          <td class="paramtype">unsigned char&#160;</td>
+          <td class="paramname"><em>key</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>xx</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>yy</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Keyboard key up event handler. </p>
+<ul>
+<li>w If moving forward, stop. Otherwise, start moving backwards.</li>
+<li>s If moving backwards, stop. Otherwise, start moving forward. </li>
+</ul>
+
+</div>
+</div>
 <a class="anchor" id="a3c04138a5bfe5d72780bb7e82a18e627"></a><!-- doxytag: member="main.cpp::main" ref="a3c04138a5bfe5d72780bb7e82a18e627" args="(int argc, char **argv)" -->
 <div class="memitem">
 <div class="memproto">
@@ -351,7 +440,7 @@ Variables</h2></td></tr>
 </div>
 <div class="memdoc">
 
-<p>Timer event to refresh the screen. </p>
+<p>Timer event handler to refresh the screen. </p>
 <p>Refreshes the screen every 33 miliseconds to keep a frame rate close to 30 frames per second.</p>
 <p>/param value The identifier of the timer which called the event. Ignored in this case, as only one timer is created in the whole application. </p>
 
@@ -433,6 +522,21 @@ Variables</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="ad6e5537dc53343dcfb9e48102f86ae39"></a><!-- doxytag: member="main.cpp::keyboardLowKeysDown" ref="ad6e5537dc53343dcfb9e48102f86ae39" args="[26]" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="main_8cpp.html#ad6e5537dc53343dcfb9e48102f86ae39">keyboardLowKeysDown</a>[26]</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Array of boolean flags to store which keys are down. </p>
+
+</div>
+</div>
 <a class="anchor" id="aa1d03b5feb3634a31b170539ecd834a4"></a><!-- doxytag: member="main.cpp::shaders" ref="aa1d03b5feb3634a31b170539ecd834a4" args="[8]" -->
 <div class="memitem">
 <div class="memproto">
@@ -443,7 +547,60 @@ Variables</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Collection of shaders to draw the teapots in the different positions of the cube. 0 : black 1 : blue 2 : green 3 : cyan 4 : red 5 : magenta 6 : yellow 7 : white </p>
+<p>Collection of shaders to draw the teapots in the different positions of the cube. - 0 : black</p>
+<ul>
+<li>1 : blue</li>
+<li>2 : green</li>
+<li>3 : cyan</li>
+<li>4 : red</li>
+<li>5 : magenta</li>
+<li>6 : yellow</li>
+<li>7 : white </li>
+</ul>
+
+</div>
+</div>
+<a class="anchor" id="af232aac2aecea58857955f5b1619b1e5"></a><!-- doxytag: member="main.cpp::straightBeginMilis" ref="af232aac2aecea58857955f5b1619b1e5" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int <a class="el" href="main_8cpp.html#af232aac2aecea58857955f5b1619b1e5">straightBeginMilis</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Time value in miliseconds returned by the GLUT library when beginning movement or refreshing the current position of the camera. </p>
+
+</div>
+</div>
+<a class="anchor" id="aaabdb6d6d87042d929ff2130a206e8a7"></a><!-- doxytag: member="main.cpp::straightFactor" ref="aaabdb6d6d87042d929ff2130a206e8a7" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float <a class="el" href="main_8cpp.html#aaabdb6d6d87042d929ff2130a206e8a7">straightFactor</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Factor which influences how the movement is performed. A positive value performs a forward movement, whereas a negative value will perform a backwards movement. Absolute values greater then 1 increase velocity. Less than 1 decreases it. </p>
+
+</div>
+</div>
+<a class="anchor" id="a96d237e535f28667698d2a5388ccc805"></a><!-- doxytag: member="main.cpp::straightVelocity" ref="a96d237e535f28667698d2a5388ccc805" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const float <a class="el" href="main_8cpp.html#a96d237e535f28667698d2a5388ccc805">straightVelocity</a> = 10</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Movement velocity. </p>
 
 </div>
 </div>
@@ -497,7 +654,7 @@ Variables</h2></td></tr>
     <ul>
       <li class="navelem"><a class="el" href="main_8cpp.html">main.cpp</a>      </li>
 
-    <li class="footer">Generated on Wed Feb 22 2012 00:41:45 for Integrated Project by
+    <li class="footer">Generated on Wed Feb 22 2012 11:35:47 for Integrated Project by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.6.1 </li>
    </ul>
