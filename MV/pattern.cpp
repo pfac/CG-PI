@@ -49,10 +49,5 @@ namespace cg
 		{
 			return _width;
 		}
-
-		bool Pattern::match(ARMarkerInfo marker_info) const
-		{
-			return _id == marker_info.id;
-		}
 	}
 }

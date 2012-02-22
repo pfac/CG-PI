@@ -78,11 +78,8 @@
   <ItemGroup>
     <ClCompile Include="ar.cpp" />
     <ClCompile Include="blaf.cpp" />
-    <ClCompile Include="camera.cpp" />
-    <ClCompile Include="keyboard.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="pattern.cpp" />
-    <ClCompile Include="player.cpp" />
     <ClCompile Include="VS\vsGLInfoLib.cpp" />
     <ClCompile Include="VS\vsLogLib.cpp" />
     <ClCompile Include="VS\vsMathLib.cpp" />
@@ -93,11 +90,7 @@
   <ItemGroup>
     <ClInclude Include="ar.h" />
     <ClInclude Include="blaf.h" />
-    <ClInclude Include="camera.h" />
-    <ClInclude Include="keyboard.h" />
-    <ClInclude Include="mouse.h" />
     <ClInclude Include="pattern.h" />
-    <ClInclude Include="player.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

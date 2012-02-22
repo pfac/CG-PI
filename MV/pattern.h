@@ -14,28 +14,51 @@ namespace cg
 		class Pattern
 		{
 		private:
-			/**
-			 * pattern id, and source file name
-			 * both should only be changed on constructor
-			 */
-			const string _filename;
+			const string _filename;	//!	Name of the pattern's source file.
 
-			int _id;
-			// holds the center position in reference to pattern coordinates
-			// (0, 0) by default
-			double _center[2];
-			double _width;
+			int _id;				//!	Pattern identification. Used to distinguish between multiple patterns.
+			double _center[2];		//!	Coordinates of the pattern's center.
+			double _width;			//!	Real width of the pattern.
 
 		public:
+			//!	Default constructor.
+			/*!
+				Loads the pattern to be recognized. If the pattern can not be loaded, aborts the program execution.
+				
+				/param	filename	Name of the pattern's source file.
+			*/
 			Pattern(const string filename);
 
 			// Getters & Setters
+			//!	Get the pattern identification.
+			/*!
+				/return	The pattern identification number.
+			*/
 			int id() const;
+
+			//!	Get the pattern filename
+			/*!
+				/return	The name of the pattern's source file.
+			*/
 			string filename() const;
+
+			//!	Get the first coordinate of the pattern's center.
+			/*!
+				/return	The x component of the pattern's center.
+			*/
 			double centerX() const;
+
+			//!	Get the second coordinate of the pattern's center.
+			/*!
+				/return	The y component of the pattern's center.
+			*/
 			double centerY() const;
+
+			//!	Get the real width.
+			/*!
+				/return	The real width of the pattern.
+			*/
 			double width() const;
-			bool match(ARMarkerInfo marker_info) const;
 		};
 	}
 }

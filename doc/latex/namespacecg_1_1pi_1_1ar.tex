@@ -1,0 +1,367 @@
+\hypertarget{namespacecg_1_1pi_1_1ar}{\section{cg\-:\-:pi\-:\-:ar \-Namespace \-Reference}
+\label{namespacecg_1_1pi_1_1ar}\index{cg\-::pi\-::ar@{cg\-::pi\-::ar}}
+}
+\subsection*{\-Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{namespacecg_1_1pi_1_1ar_afefc10089c39a2f9ff586acfff13020a}{marker\-Detected} (\hyperlink{classcg_1_1pi_1_1_pattern}{\-Pattern} \hyperlink{namespacecg_1_1pi_1_1ar_a73773bdd3e1457f2e80a246d51c9c10b}{pattern}, \-A\-R\-Marker\-Info marker)
+\begin{DoxyCompactList}\small\item\em \-Handles the matched markers, extracting position and orientation information. \-Tests the information extraction process by overlapping a manually rendered object (based on the translation and rotation data collected) with an automatically rendered object (loading the transformation matrix directly into \-Open\-G\-L). \end{DoxyCompactList}\item 
+void \hyperlink{namespacecg_1_1pi_1_1ar_ad75c3e3f77a179d1d503fb060b2913d1}{render} (int pattern\-\_\-index, double gl\-\_\-mat\mbox{[}16\mbox{]})
+\begin{DoxyCompactList}\small\item\em \-Main rendering function. \-Calls \hyperlink{namespacecg_1_1pi_1_1ar_a2a7b1d68ad09bf0baa75dc4e3339fc47}{render\-Auto} for the automatically set object and \hyperlink{namespacecg_1_1pi_1_1ar_a601058fdb418bc8d7c95e64256cee4c3}{render\-Manual} for the manually positioned and oriented object. \-Information is extracted through \hyperlink{namespacecg_1_1pi_1_1ar_a5b0f476cf646a6b0d26490f594f64a33}{extract\-Trans\-Model\-View}. \end{DoxyCompactList}\item 
+void \hyperlink{namespacecg_1_1pi_1_1ar_a5b0f476cf646a6b0d26490f594f64a33}{extract\-Trans\-Model\-View} (double gl\-\_\-mat\mbox{[}16\mbox{]}, double $\ast$x, double $\ast$y, double $\ast$z, double $\ast$a, double $\ast$b, double $\ast$c)
+\begin{DoxyCompactList}\small\item\em \-Extracts transformations from the \-Model\-View matrix (usually obtained automatically). \end{DoxyCompactList}\item 
+void \hyperlink{namespacecg_1_1pi_1_1ar_a2a7b1d68ad09bf0baa75dc4e3339fc47}{render\-Auto} (int pattern\-\_\-index, double $\ast$gl\-\_\-mat)
+\begin{DoxyCompactList}\small\item\em \-Renders an automatically positioned and oriented object, by loading a given \-Open\-G\-L \-Model\-View matrix. \end{DoxyCompactList}\item 
+void \hyperlink{namespacecg_1_1pi_1_1ar_a601058fdb418bc8d7c95e64256cee4c3}{render\-Manual} (int pattern\-\_\-index, \-G\-Lfloat x, \-G\-Lfloat y, \-G\-Lfloat z, \-G\-Lfloat a, \-G\-Lfloat b, \-G\-Lfloat c)
+\begin{DoxyCompactList}\small\item\em \-Renders a manually positioned and oriented object, using explicitly given information. \-The information required for this can be obtained from \hyperlink{namespacecg_1_1pi_1_1ar_a5b0f476cf646a6b0d26490f594f64a33}{extract\-Trans\-Model\-View}. \end{DoxyCompactList}\item 
+void \hyperlink{namespacecg_1_1pi_1_1ar_afbeb3f02a1e14188f2318042f389b99b}{cleanup} ()
+\begin{DoxyCompactList}\small\item\em \-Begins the process of termination by stopping the video capture and closing it, and calling the appropriate functions to release any other allocated resources. \end{DoxyCompactList}\item 
+void \hyperlink{namespacecg_1_1pi_1_1ar_a1fca5521342384d779b14b37af9dd953}{init} ()
+\begin{DoxyCompactList}\small\item\em \-Initializes the application components. \-This function calls init\-Vars, glut\-Init, sets up the video capture mechanism and the window, and loads the patterns. \end{DoxyCompactList}\item 
+void \hyperlink{namespacecg_1_1pi_1_1ar_ab47f004cfde539ec2606fa3c7aba0593}{init} (float $\ast$\hyperlink{namespacecg_1_1pi_1_1ar_a3d6b78e9280aef07edbb62c471582713}{gl\-Transformation\-Matrix})
+\begin{DoxyCompactList}\small\item\em \-Initialize the \-A\-R\-Tool\-Kit module. \end{DoxyCompactList}\item 
+void \hyperlink{namespacecg_1_1pi_1_1ar_a4476b94368312636b0ac2be0ae742ce9}{mouse\-Func} (int button, int state, int x, int y)
+\begin{DoxyCompactList}\small\item\em \-Mouse button handler. \-Currently implements no reaction to mouse button clicks. \end{DoxyCompactList}\item 
+void \hyperlink{namespacecg_1_1pi_1_1ar_a4a7af9e3d70418c8461519dc9f82ec71}{key\-Func} (unsigned char key, int x, int y)
+\begin{DoxyCompactList}\small\item\em \-Keyboard button handler. \begin{TabularC}{2}
+\hline
+\-Button \-Key &\-Reaction  \\\cline{1-2}
+\-E\-S\-C &\-Prints framerate and quits.  \\\cline{1-2}
+\end{TabularC}
+\end{DoxyCompactList}\item 
+void \hyperlink{namespacecg_1_1pi_1_1ar_a7368a118340f3f79ae5ff24d75ac9041}{loop\-Func} ()
+\begin{DoxyCompactList}\small\item\em \-Main loop function\-: captures a video frame and checks it for markers. \-For every detected marker, compares it with the patterns set.\begin{DoxySeeAlso}{\-See also}
+init\-Vars
+
+
+\end{DoxySeeAlso}
+\-When a detected marker is associated with a loaded pattern, calls \hyperlink{namespacecg_1_1pi_1_1ar_afefc10089c39a2f9ff586acfff13020a}{marker\-Detected}. \end{DoxyCompactList}\item 
+void \hyperlink{namespacecg_1_1pi_1_1ar_a8a0f3d10242ff8f4491b1b376ea8bf09}{run} ()
+\begin{DoxyCompactList}\small\item\em \-Starts the video capture and the application main loop. \end{DoxyCompactList}\item 
+void \hyperlink{namespacecg_1_1pi_1_1ar_a231a9527f1d785d52b483821b8e4afd9}{lock\-Output} ()
+\begin{DoxyCompactList}\small\item\em \-Ask for access to the output data. \end{DoxyCompactList}\item 
+void \hyperlink{namespacecg_1_1pi_1_1ar_a975cc0ca7a96016024e8cebb34550de4}{unlock\-Output} ()
+\begin{DoxyCompactList}\small\item\em \-Dismiss the access to the output data. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{\-Variables}
+\begin{DoxyCompactItemize}
+\item 
+const string \hyperlink{namespacecg_1_1pi_1_1ar_ada61113604afb0827c60d1ce05d7bc14}{camera\-\_\-data\-\_\-filename} = \char`\"{}../conf/camera.\-dat\char`\"{}
+\item 
+\-A\-R\-Param \hyperlink{namespacecg_1_1pi_1_1ar_ab8aaea8a88d522dba301bbda1b2e83e8}{camera\-\_\-param}
+\item 
+const int \hyperlink{namespacecg_1_1pi_1_1ar_af24c104be0dcdd7c93225b4a502d2218}{pattern\-\_\-threshold} = 100
+\item 
+const double \hyperlink{namespacecg_1_1pi_1_1ar_ad69650d92577ded4642d917dfce4e253}{pattern\-\_\-width} = 80.\-0
+\item 
+const string \hyperlink{namespacecg_1_1pi_1_1ar_ae2c3180f588b76bd373565b747fead03}{pattern\-\_\-filename} = \char`\"{}../patterns/hiro.\-patt\char`\"{}
+\item 
+\hyperlink{classcg_1_1pi_1_1_pattern}{\-Pattern} \hyperlink{namespacecg_1_1pi_1_1ar_a73773bdd3e1457f2e80a246d51c9c10b}{pattern} (\hyperlink{namespacecg_1_1pi_1_1ar_ae2c3180f588b76bd373565b747fead03}{pattern\-\_\-filename})
+\item 
+double \hyperlink{namespacecg_1_1pi_1_1ar_a325752bd43485d2fc7977218ff01ca97}{pattern\-\_\-transformation} \mbox{[}3\mbox{]}\mbox{[}4\mbox{]}
+\item 
+const string \hyperlink{namespacecg_1_1pi_1_1ar_aef204bbaf562a37c596d560a36a397c3}{video\-\_\-conf\-\_\-filename} = \char`\"{}\char`\"{}
+\item 
+int \hyperlink{namespacecg_1_1pi_1_1ar_a66aed64c189cf8e9d0be11a1ac453843}{video\-\_\-height}
+\item 
+int \hyperlink{namespacecg_1_1pi_1_1ar_a16114fb5e187c2a5bbaaac162d644df4}{video\-\_\-width}
+\item 
+unsigned \hyperlink{namespacecg_1_1pi_1_1ar_a1acf4d5fc1ffdfdf7f395457b2b59a75}{video\-\_\-frame\-\_\-count}
+\item 
+boost\-::mutex \hyperlink{namespacecg_1_1pi_1_1ar_af9c0ea4eefb7149284522e73acd06221}{output\-\_\-mutex}
+\item 
+float $\ast$ \hyperlink{namespacecg_1_1pi_1_1ar_a3d6b78e9280aef07edbb62c471582713}{gl\-Transformation\-Matrix}
+\end{DoxyCompactItemize}
+
+
+\subsection{\-Function \-Documentation}
+\hypertarget{namespacecg_1_1pi_1_1ar_afbeb3f02a1e14188f2318042f389b99b}{\index{cg\-::pi\-::ar@{cg\-::pi\-::ar}!cleanup@{cleanup}}
+\index{cleanup@{cleanup}!cg::pi::ar@{cg\-::pi\-::ar}}
+\subsubsection[{cleanup}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf cg\-::pi\-::ar\-::cleanup} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{namespacecg_1_1pi_1_1ar_afbeb3f02a1e14188f2318042f389b99b}
+
+
+\-Begins the process of termination by stopping the video capture and closing it, and calling the appropriate functions to release any other allocated resources. 
+
+\hypertarget{namespacecg_1_1pi_1_1ar_a5b0f476cf646a6b0d26490f594f64a33}{\index{cg\-::pi\-::ar@{cg\-::pi\-::ar}!extract\-Trans\-Model\-View@{extract\-Trans\-Model\-View}}
+\index{extract\-Trans\-Model\-View@{extract\-Trans\-Model\-View}!cg::pi::ar@{cg\-::pi\-::ar}}
+\subsubsection[{extract\-Trans\-Model\-View}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf cg\-::pi\-::ar\-::extract\-Trans\-Model\-View} (
+\begin{DoxyParamCaption}
+\item[{double}]{gl\-\_\-mat\mbox{[}16\mbox{]}, }
+\item[{double $\ast$}]{x, }
+\item[{double $\ast$}]{y, }
+\item[{double $\ast$}]{z, }
+\item[{double $\ast$}]{a, }
+\item[{double $\ast$}]{b, }
+\item[{double $\ast$}]{c}
+\end{DoxyParamCaption}
+)}}\label{namespacecg_1_1pi_1_1ar_a5b0f476cf646a6b0d26490f594f64a33}
+
+
+\-Extracts transformations from the \-Model\-View matrix (usually obtained automatically). 
+
+
+\begin{DoxyParams}{\-Parameters}
+{\em gl\-\_\-mat} & \-Open\-G\-L \-Model\-View transformation homogeneous 4x4 matrix, in a column-\/major array, as conventioned in \-Open\-G\-L\\
+\hline
+{\em x} & \-Reference to return the first component of the position.\\
+\hline
+{\em y} & \-Reference to return the second component of the position.\\
+\hline
+{\em z} & \-Reference to return the third component of the position.\\
+\hline
+{\em a} & \-Reference to return the counter-\/clockwise rotation angle around the x axis.\\
+\hline
+{\em b} & \-Reference to return the counter-\/clockwise rotation angle around the y axis.\\
+\hline
+{\em c} & \-Reference to return the counter-\/clockwise rotation angle around the z axis.\\
+\hline
+\end{DoxyParams}
+\hypertarget{namespacecg_1_1pi_1_1ar_a1fca5521342384d779b14b37af9dd953}{\index{cg\-::pi\-::ar@{cg\-::pi\-::ar}!init@{init}}
+\index{init@{init}!cg::pi::ar@{cg\-::pi\-::ar}}
+\subsubsection[{init}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf cg\-::pi\-::ar\-::init} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{namespacecg_1_1pi_1_1ar_a1fca5521342384d779b14b37af9dd953}
+
+
+\-Initializes the application components. \-This function calls init\-Vars, glut\-Init, sets up the video capture mechanism and the window, and loads the patterns. 
+
+\hypertarget{namespacecg_1_1pi_1_1ar_ab47f004cfde539ec2606fa3c7aba0593}{\index{cg\-::pi\-::ar@{cg\-::pi\-::ar}!init@{init}}
+\index{init@{init}!cg::pi::ar@{cg\-::pi\-::ar}}
+\subsubsection[{init}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf cg\-::pi\-::ar\-::init} (
+\begin{DoxyParamCaption}
+\item[{float $\ast$}]{gl\-Transformation\-Matrix}
+\end{DoxyParamCaption}
+)}}\label{namespacecg_1_1pi_1_1ar_ab47f004cfde539ec2606fa3c7aba0593}
+
+
+\-Initialize the \-A\-R\-Tool\-Kit module. 
+
+\-Initializes the \-A\-R\-Tool\-Kit library and prepares the capture system.
+
+\-Also sets the transformation matrix to be modified when the pattern is detected.
+
+/param gl\-Transformation\-Matrix \-Pointer to the shared transformation matrix. \hypertarget{namespacecg_1_1pi_1_1ar_a4a7af9e3d70418c8461519dc9f82ec71}{\index{cg\-::pi\-::ar@{cg\-::pi\-::ar}!key\-Func@{key\-Func}}
+\index{key\-Func@{key\-Func}!cg::pi::ar@{cg\-::pi\-::ar}}
+\subsubsection[{key\-Func}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf cg\-::pi\-::ar\-::key\-Func} (
+\begin{DoxyParamCaption}
+\item[{unsigned char}]{key, }
+\item[{int}]{x, }
+\item[{int}]{y}
+\end{DoxyParamCaption}
+)}}\label{namespacecg_1_1pi_1_1ar_a4a7af9e3d70418c8461519dc9f82ec71}
+
+
+\-Keyboard button handler. \begin{TabularC}{2}
+\hline
+\-Button \-Key &\-Reaction  \\\cline{1-2}
+\-E\-S\-C &\-Prints framerate and quits.  \\\cline{1-2}
+\end{TabularC}
+
+
+\hypertarget{namespacecg_1_1pi_1_1ar_a231a9527f1d785d52b483821b8e4afd9}{\index{cg\-::pi\-::ar@{cg\-::pi\-::ar}!lock\-Output@{lock\-Output}}
+\index{lock\-Output@{lock\-Output}!cg::pi::ar@{cg\-::pi\-::ar}}
+\subsubsection[{lock\-Output}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf cg\-::pi\-::ar\-::lock\-Output} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{namespacecg_1_1pi_1_1ar_a231a9527f1d785d52b483821b8e4afd9}
+
+
+\-Ask for access to the output data. 
+
+\-Asks for access to the shared transformation matrix, to avoid race conditions. \hypertarget{namespacecg_1_1pi_1_1ar_a7368a118340f3f79ae5ff24d75ac9041}{\index{cg\-::pi\-::ar@{cg\-::pi\-::ar}!loop\-Func@{loop\-Func}}
+\index{loop\-Func@{loop\-Func}!cg::pi::ar@{cg\-::pi\-::ar}}
+\subsubsection[{loop\-Func}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf cg\-::pi\-::ar\-::loop\-Func} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{namespacecg_1_1pi_1_1ar_a7368a118340f3f79ae5ff24d75ac9041}
+
+
+\-Main loop function\-: captures a video frame and checks it for markers. \-For every detected marker, compares it with the patterns set.\begin{DoxySeeAlso}{\-See also}
+init\-Vars
+
+
+\end{DoxySeeAlso}
+\-When a detected marker is associated with a loaded pattern, calls \hyperlink{namespacecg_1_1pi_1_1ar_afefc10089c39a2f9ff586acfff13020a}{marker\-Detected}. 
+
+\hypertarget{namespacecg_1_1pi_1_1ar_afefc10089c39a2f9ff586acfff13020a}{\index{cg\-::pi\-::ar@{cg\-::pi\-::ar}!marker\-Detected@{marker\-Detected}}
+\index{marker\-Detected@{marker\-Detected}!cg::pi::ar@{cg\-::pi\-::ar}}
+\subsubsection[{marker\-Detected}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf cg\-::pi\-::ar\-::marker\-Detected} (
+\begin{DoxyParamCaption}
+\item[{\-Pattern}]{pattern, }
+\item[{\-A\-R\-Marker\-Info}]{marker}
+\end{DoxyParamCaption}
+)}}\label{namespacecg_1_1pi_1_1ar_afefc10089c39a2f9ff586acfff13020a}
+
+
+\-Handles the matched markers, extracting position and orientation information. \-Tests the information extraction process by overlapping a manually rendered object (based on the translation and rotation data collected) with an automatically rendered object (loading the transformation matrix directly into \-Open\-G\-L). 
+
+
+\begin{DoxyParams}{\-Parameters}
+{\em pattern} & \-The matched pattern structure\\
+\hline
+{\em marker} & \-The detected marker structure\\
+\hline
+\end{DoxyParams}
+\hypertarget{namespacecg_1_1pi_1_1ar_a4476b94368312636b0ac2be0ae742ce9}{\index{cg\-::pi\-::ar@{cg\-::pi\-::ar}!mouse\-Func@{mouse\-Func}}
+\index{mouse\-Func@{mouse\-Func}!cg::pi::ar@{cg\-::pi\-::ar}}
+\subsubsection[{mouse\-Func}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf cg\-::pi\-::ar\-::mouse\-Func} (
+\begin{DoxyParamCaption}
+\item[{int}]{button, }
+\item[{int}]{state, }
+\item[{int}]{x, }
+\item[{int}]{y}
+\end{DoxyParamCaption}
+)}}\label{namespacecg_1_1pi_1_1ar_a4476b94368312636b0ac2be0ae742ce9}
+
+
+\-Mouse button handler. \-Currently implements no reaction to mouse button clicks. 
+
+\hypertarget{namespacecg_1_1pi_1_1ar_ad75c3e3f77a179d1d503fb060b2913d1}{\index{cg\-::pi\-::ar@{cg\-::pi\-::ar}!render@{render}}
+\index{render@{render}!cg::pi::ar@{cg\-::pi\-::ar}}
+\subsubsection[{render}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf cg\-::pi\-::ar\-::render} (
+\begin{DoxyParamCaption}
+\item[{int}]{pattern\-\_\-index, }
+\item[{double}]{gl\-\_\-mat\mbox{[}16\mbox{]}}
+\end{DoxyParamCaption}
+)}}\label{namespacecg_1_1pi_1_1ar_ad75c3e3f77a179d1d503fb060b2913d1}
+
+
+\-Main rendering function. \-Calls \hyperlink{namespacecg_1_1pi_1_1ar_a2a7b1d68ad09bf0baa75dc4e3339fc47}{render\-Auto} for the automatically set object and \hyperlink{namespacecg_1_1pi_1_1ar_a601058fdb418bc8d7c95e64256cee4c3}{render\-Manual} for the manually positioned and oriented object. \-Information is extracted through \hyperlink{namespacecg_1_1pi_1_1ar_a5b0f476cf646a6b0d26490f594f64a33}{extract\-Trans\-Model\-View}. 
+
+
+\begin{DoxyParams}{\-Parameters}
+{\em pattern\-\_\-index} & \-Index of the matched pattern, on which to render\\
+\hline
+{\em gl\-\_\-mat} & \-Open\-G\-L \-Model\-View transformation homogeneous 4x4 matrix, in a column-\/major array, as conventioned in \-Open\-G\-L\\
+\hline
+\end{DoxyParams}
+\hypertarget{namespacecg_1_1pi_1_1ar_a2a7b1d68ad09bf0baa75dc4e3339fc47}{\index{cg\-::pi\-::ar@{cg\-::pi\-::ar}!render\-Auto@{render\-Auto}}
+\index{render\-Auto@{render\-Auto}!cg::pi::ar@{cg\-::pi\-::ar}}
+\subsubsection[{render\-Auto}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf cg\-::pi\-::ar\-::render\-Auto} (
+\begin{DoxyParamCaption}
+\item[{int}]{pattern\-\_\-index, }
+\item[{double $\ast$}]{gl\-\_\-mat}
+\end{DoxyParamCaption}
+)}}\label{namespacecg_1_1pi_1_1ar_a2a7b1d68ad09bf0baa75dc4e3339fc47}
+
+
+\-Renders an automatically positioned and oriented object, by loading a given \-Open\-G\-L \-Model\-View matrix. 
+
+
+\begin{DoxyParams}{\-Parameters}
+{\em pattern\-\_\-index} & \-Index of the matched pattern, on which to render\\
+\hline
+{\em gl\-\_\-mat} & \-Open\-G\-L \-Model\-View transformation homogeneous 4x4 matrix, in a column-\/major array, as conventioned in \-Open\-G\-L\\
+\hline
+\end{DoxyParams}
+\hypertarget{namespacecg_1_1pi_1_1ar_a601058fdb418bc8d7c95e64256cee4c3}{\index{cg\-::pi\-::ar@{cg\-::pi\-::ar}!render\-Manual@{render\-Manual}}
+\index{render\-Manual@{render\-Manual}!cg::pi::ar@{cg\-::pi\-::ar}}
+\subsubsection[{render\-Manual}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf cg\-::pi\-::ar\-::render\-Manual} (
+\begin{DoxyParamCaption}
+\item[{int}]{pattern\-\_\-index, }
+\item[{\-G\-Lfloat}]{x, }
+\item[{\-G\-Lfloat}]{y, }
+\item[{\-G\-Lfloat}]{z, }
+\item[{\-G\-Lfloat}]{a, }
+\item[{\-G\-Lfloat}]{b, }
+\item[{\-G\-Lfloat}]{c}
+\end{DoxyParamCaption}
+)}}\label{namespacecg_1_1pi_1_1ar_a601058fdb418bc8d7c95e64256cee4c3}
+
+
+\-Renders a manually positioned and oriented object, using explicitly given information. \-The information required for this can be obtained from \hyperlink{namespacecg_1_1pi_1_1ar_a5b0f476cf646a6b0d26490f594f64a33}{extract\-Trans\-Model\-View}. 
+
+
+\begin{DoxyParams}{\-Parameters}
+{\em pattern\-\_\-index} & \-Index of the matched pattern, on which to render\\
+\hline
+{\em x} & \-Value of the first component of the position.\\
+\hline
+{\em y} & \-Value of the second component of the position.\\
+\hline
+{\em z} & \-Value of the third component of the position.\\
+\hline
+{\em a} & \-Value of the counter-\/clockwise rotation angle around the x axis.\\
+\hline
+{\em b} & \-Value of the counter-\/clockwise rotation angle around the y axis.\\
+\hline
+{\em c} & \-Value of the counter-\/clockwise rotation angle around the z axis.\\
+\hline
+\end{DoxyParams}
+\hypertarget{namespacecg_1_1pi_1_1ar_a8a0f3d10242ff8f4491b1b376ea8bf09}{\index{cg\-::pi\-::ar@{cg\-::pi\-::ar}!run@{run}}
+\index{run@{run}!cg::pi::ar@{cg\-::pi\-::ar}}
+\subsubsection[{run}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf cg\-::pi\-::ar\-::run} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{namespacecg_1_1pi_1_1ar_a8a0f3d10242ff8f4491b1b376ea8bf09}
+
+
+\-Starts the video capture and the application main loop. 
+
+\-Starts the application main loop.
+
+\-Calls the main loop of the \-G\-L\-U\-T library. \-The \-A\-R\-Tool\-Kit capture and recognize loop runs in a \-G\-L\-U\-T window.
+
+\-Every time a pattern is recognized, the shared transformation matrix is set to reflect the pattern positioning, ignoring any translation.
+
+\-When no pattern is found, the matrix is set to be the identity. \hypertarget{namespacecg_1_1pi_1_1ar_a975cc0ca7a96016024e8cebb34550de4}{\index{cg\-::pi\-::ar@{cg\-::pi\-::ar}!unlock\-Output@{unlock\-Output}}
+\index{unlock\-Output@{unlock\-Output}!cg::pi::ar@{cg\-::pi\-::ar}}
+\subsubsection[{unlock\-Output}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf cg\-::pi\-::ar\-::unlock\-Output} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{namespacecg_1_1pi_1_1ar_a975cc0ca7a96016024e8cebb34550de4}
+
+
+\-Dismiss the access to the output data. 
+
+\-Releases the shared transformation matrix, avoiding deadlocks. 
+
+\subsection{\-Variable \-Documentation}
+\hypertarget{namespacecg_1_1pi_1_1ar_ada61113604afb0827c60d1ce05d7bc14}{\index{cg\-::pi\-::ar@{cg\-::pi\-::ar}!camera\-\_\-data\-\_\-filename@{camera\-\_\-data\-\_\-filename}}
+\index{camera\-\_\-data\-\_\-filename@{camera\-\_\-data\-\_\-filename}!cg::pi::ar@{cg\-::pi\-::ar}}
+\subsubsection[{camera\-\_\-data\-\_\-filename}]{\setlength{\rightskip}{0pt plus 5cm}const string {\bf cg\-::pi\-::ar\-::camera\-\_\-data\-\_\-filename} = \char`\"{}../conf/camera.\-dat\char`\"{}}}\label{namespacecg_1_1pi_1_1ar_ada61113604afb0827c60d1ce05d7bc14}
+\hypertarget{namespacecg_1_1pi_1_1ar_ab8aaea8a88d522dba301bbda1b2e83e8}{\index{cg\-::pi\-::ar@{cg\-::pi\-::ar}!camera\-\_\-param@{camera\-\_\-param}}
+\index{camera\-\_\-param@{camera\-\_\-param}!cg::pi::ar@{cg\-::pi\-::ar}}
+\subsubsection[{camera\-\_\-param}]{\setlength{\rightskip}{0pt plus 5cm}\-A\-R\-Param {\bf cg\-::pi\-::ar\-::camera\-\_\-param}}}\label{namespacecg_1_1pi_1_1ar_ab8aaea8a88d522dba301bbda1b2e83e8}
+\hypertarget{namespacecg_1_1pi_1_1ar_a3d6b78e9280aef07edbb62c471582713}{\index{cg\-::pi\-::ar@{cg\-::pi\-::ar}!gl\-Transformation\-Matrix@{gl\-Transformation\-Matrix}}
+\index{gl\-Transformation\-Matrix@{gl\-Transformation\-Matrix}!cg::pi::ar@{cg\-::pi\-::ar}}
+\subsubsection[{gl\-Transformation\-Matrix}]{\setlength{\rightskip}{0pt plus 5cm}float$\ast$ {\bf cg\-::pi\-::ar\-::gl\-Transformation\-Matrix}}}\label{namespacecg_1_1pi_1_1ar_a3d6b78e9280aef07edbb62c471582713}
+\hypertarget{namespacecg_1_1pi_1_1ar_af9c0ea4eefb7149284522e73acd06221}{\index{cg\-::pi\-::ar@{cg\-::pi\-::ar}!output\-\_\-mutex@{output\-\_\-mutex}}
+\index{output\-\_\-mutex@{output\-\_\-mutex}!cg::pi::ar@{cg\-::pi\-::ar}}
+\subsubsection[{output\-\_\-mutex}]{\setlength{\rightskip}{0pt plus 5cm}boost\-::mutex {\bf cg\-::pi\-::ar\-::output\-\_\-mutex}}}\label{namespacecg_1_1pi_1_1ar_af9c0ea4eefb7149284522e73acd06221}
+\hypertarget{namespacecg_1_1pi_1_1ar_a73773bdd3e1457f2e80a246d51c9c10b}{\index{cg\-::pi\-::ar@{cg\-::pi\-::ar}!pattern@{pattern}}
+\index{pattern@{pattern}!cg::pi::ar@{cg\-::pi\-::ar}}
+\subsubsection[{pattern}]{\setlength{\rightskip}{0pt plus 5cm}{\bf \-Pattern} {\bf cg\-::pi\-::ar\-::pattern}({\bf pattern\-\_\-filename})}}\label{namespacecg_1_1pi_1_1ar_a73773bdd3e1457f2e80a246d51c9c10b}
+\hypertarget{namespacecg_1_1pi_1_1ar_ae2c3180f588b76bd373565b747fead03}{\index{cg\-::pi\-::ar@{cg\-::pi\-::ar}!pattern\-\_\-filename@{pattern\-\_\-filename}}
+\index{pattern\-\_\-filename@{pattern\-\_\-filename}!cg::pi::ar@{cg\-::pi\-::ar}}
+\subsubsection[{pattern\-\_\-filename}]{\setlength{\rightskip}{0pt plus 5cm}const string {\bf cg\-::pi\-::ar\-::pattern\-\_\-filename} = \char`\"{}../patterns/hiro.\-patt\char`\"{}}}\label{namespacecg_1_1pi_1_1ar_ae2c3180f588b76bd373565b747fead03}
+\hypertarget{namespacecg_1_1pi_1_1ar_af24c104be0dcdd7c93225b4a502d2218}{\index{cg\-::pi\-::ar@{cg\-::pi\-::ar}!pattern\-\_\-threshold@{pattern\-\_\-threshold}}
+\index{pattern\-\_\-threshold@{pattern\-\_\-threshold}!cg::pi::ar@{cg\-::pi\-::ar}}
+\subsubsection[{pattern\-\_\-threshold}]{\setlength{\rightskip}{0pt plus 5cm}const int {\bf cg\-::pi\-::ar\-::pattern\-\_\-threshold} = 100}}\label{namespacecg_1_1pi_1_1ar_af24c104be0dcdd7c93225b4a502d2218}
+\hypertarget{namespacecg_1_1pi_1_1ar_a325752bd43485d2fc7977218ff01ca97}{\index{cg\-::pi\-::ar@{cg\-::pi\-::ar}!pattern\-\_\-transformation@{pattern\-\_\-transformation}}
+\index{pattern\-\_\-transformation@{pattern\-\_\-transformation}!cg::pi::ar@{cg\-::pi\-::ar}}
+\subsubsection[{pattern\-\_\-transformation}]{\setlength{\rightskip}{0pt plus 5cm}double {\bf cg\-::pi\-::ar\-::pattern\-\_\-transformation}\mbox{[}3\mbox{]}\mbox{[}4\mbox{]}}}\label{namespacecg_1_1pi_1_1ar_a325752bd43485d2fc7977218ff01ca97}
+\hypertarget{namespacecg_1_1pi_1_1ar_ad69650d92577ded4642d917dfce4e253}{\index{cg\-::pi\-::ar@{cg\-::pi\-::ar}!pattern\-\_\-width@{pattern\-\_\-width}}
+\index{pattern\-\_\-width@{pattern\-\_\-width}!cg::pi::ar@{cg\-::pi\-::ar}}
+\subsubsection[{pattern\-\_\-width}]{\setlength{\rightskip}{0pt plus 5cm}const double {\bf cg\-::pi\-::ar\-::pattern\-\_\-width} = 80.\-0}}\label{namespacecg_1_1pi_1_1ar_ad69650d92577ded4642d917dfce4e253}
+\hypertarget{namespacecg_1_1pi_1_1ar_aef204bbaf562a37c596d560a36a397c3}{\index{cg\-::pi\-::ar@{cg\-::pi\-::ar}!video\-\_\-conf\-\_\-filename@{video\-\_\-conf\-\_\-filename}}
+\index{video\-\_\-conf\-\_\-filename@{video\-\_\-conf\-\_\-filename}!cg::pi::ar@{cg\-::pi\-::ar}}
+\subsubsection[{video\-\_\-conf\-\_\-filename}]{\setlength{\rightskip}{0pt plus 5cm}const string {\bf cg\-::pi\-::ar\-::video\-\_\-conf\-\_\-filename} = \char`\"{}\char`\"{}}}\label{namespacecg_1_1pi_1_1ar_aef204bbaf562a37c596d560a36a397c3}
+\hypertarget{namespacecg_1_1pi_1_1ar_a1acf4d5fc1ffdfdf7f395457b2b59a75}{\index{cg\-::pi\-::ar@{cg\-::pi\-::ar}!video\-\_\-frame\-\_\-count@{video\-\_\-frame\-\_\-count}}
+\index{video\-\_\-frame\-\_\-count@{video\-\_\-frame\-\_\-count}!cg::pi::ar@{cg\-::pi\-::ar}}
+\subsubsection[{video\-\_\-frame\-\_\-count}]{\setlength{\rightskip}{0pt plus 5cm}unsigned {\bf cg\-::pi\-::ar\-::video\-\_\-frame\-\_\-count}}}\label{namespacecg_1_1pi_1_1ar_a1acf4d5fc1ffdfdf7f395457b2b59a75}
+\hypertarget{namespacecg_1_1pi_1_1ar_a66aed64c189cf8e9d0be11a1ac453843}{\index{cg\-::pi\-::ar@{cg\-::pi\-::ar}!video\-\_\-height@{video\-\_\-height}}
+\index{video\-\_\-height@{video\-\_\-height}!cg::pi::ar@{cg\-::pi\-::ar}}
+\subsubsection[{video\-\_\-height}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf cg\-::pi\-::ar\-::video\-\_\-height}}}\label{namespacecg_1_1pi_1_1ar_a66aed64c189cf8e9d0be11a1ac453843}
+\hypertarget{namespacecg_1_1pi_1_1ar_a16114fb5e187c2a5bbaaac162d644df4}{\index{cg\-::pi\-::ar@{cg\-::pi\-::ar}!video\-\_\-width@{video\-\_\-width}}
+\index{video\-\_\-width@{video\-\_\-width}!cg::pi::ar@{cg\-::pi\-::ar}}
+\subsubsection[{video\-\_\-width}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf cg\-::pi\-::ar\-::video\-\_\-width}}}\label{namespacecg_1_1pi_1_1ar_a16114fb5e187c2a5bbaaac162d644df4}
