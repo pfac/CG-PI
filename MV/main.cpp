@@ -134,11 +134,25 @@ void renderScene(void) {
 	vsml->loadIdentity(VSMathLib::VIEW);
 
 	{
+		float transpose[16];
+		float inverse[16];
+
 		cg::pi::ar::lockOutput();
-		vsml->loadMatrix( VSMathLib::AUX0 , glTransformationMatrix );
+		//vsml->loadMatrix( VSMathLib::AUX0 , glTransformationMatrix );
+		for ( int j = 0 ; j < 4 ; ++j )
+		{
+			for ( int i = 0 ; i < 4 ; ++i )
+			{
+				int k = i + j * 4;
+				int l = i * 4 + j;
+				transpose[l] = glTransformationMatrix[k];
+			}
+		}
 		cg::pi::ar::unlockOutput();
 
-
+		//	inverse
+		blaf::gluInvertMatrix(transpose,inverse);
+		vsml->loadMatrix( VSMathLib::AUX0 , inverse );
 
 		float newCamDirection[4];
 		float newCamTarget[4];
@@ -537,18 +551,9 @@ int main(int argc, char **argv) {
 	glutTimerFunc( 33 , timeElapsed , 0 );
 
 	//	Mouse and Keyboard Callbacks
-	//glutKeyboardFunc(processKeys);
-	//{
-	//glutKeyboardFunc(cg::keyboard::keyDown);
 	glutKeyboardFunc(keyPress);
 	glutKeyboardUpFunc(keyUp);
-	//glutKeyboardUpFunc(cg::keyboard::keyUp);
-	//}
-	//glutMouseFunc(processMouseButtons);
-	//glutMotionFunc(processMouseMotion);
-	//glutMouseWheelFunc ( mouseWheel ) ;
 
-	////	return from main loop
 	glutSetOption(
 		GLUT_ACTION_ON_WINDOW_CLOSE,
 		GLUT_ACTION_GLUTMAINLOOP_RETURNS)

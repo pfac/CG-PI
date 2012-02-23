@@ -112,6 +112,8 @@ Functions</h2></td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert degrees to radians.  <a href="#afc65e65ad15ba81dd610ec730e026a7d"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceblaf.html#a28c67e8ed18d1a3d75e4cb46168fd145">deg2rad</a> (const float degrees)</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert degrees to radians.  <a href="#a28c67e8ed18d1a3d75e4cb46168fd145"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceblaf.html#a1d0fc91d98884a1c7cb36afeb462cde8">gluInvertMatrix</a> (const float m[16], float invOut[16])</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes the inverse of a 4x4 column-major matrix.  <a href="#a1d0fc91d98884a1c7cb36afeb462cde8"></a><br/></td></tr>
 <tr><td colspan="2"><h2><a name="var-members"></a>
 Variables</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">const double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceblaf.html#a4e8539a7ba1e59181f96a61f75e0d5c4">dPIi</a> = 0.31830988618379067153776752674502872406891929148091</td></tr>
@@ -168,6 +170,37 @@ Variables</h2></td></tr>
 
 <p>Convert degrees to radians. </p>
 <p>/param degrees The angle value, in degrees, to convert. </p>
+
+</div>
+</div>
+<a class="anchor" id="a1d0fc91d98884a1c7cb36afeb462cde8"></a><!-- doxytag: member="blaf::gluInvertMatrix" ref="a1d0fc91d98884a1c7cb36afeb462cde8" args="(const float m[16], float invOut[16])" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="namespaceblaf.html#a1d0fc91d98884a1c7cb36afeb462cde8">blaf::gluInvertMatrix</a> </td>
+          <td>(</td>
+          <td class="paramtype">const float&#160;</td>
+          <td class="paramname"><em>m</em>[16], </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>invOut</em>[16]&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Computes the inverse of a 4x4 column-major matrix. </p>
+<p>/param m The matrix to invert. /param invOut The matrix where the inverse will be stored,</p>
+<p>/returns True if the matrix has an inverse, false otherwise. </p>
 
 </div>
 </div>
@@ -351,7 +384,7 @@ Variables</h2></td></tr>
     <ul>
       <li class="navelem"><a class="el" href="namespaceblaf.html">blaf</a>      </li>
 
-    <li class="footer">Generated on Wed Feb 22 2012 11:35:47 for Integrated Project by
+    <li class="footer">Generated on Wed Feb 22 2012 18:55:30 for Integrated Project by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.6.1 </li>
    </ul>

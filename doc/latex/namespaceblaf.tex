@@ -11,7 +11,9 @@ float \hyperlink{namespaceblaf_a909ca91bbd8e85b55b12ad57a1d2bc92}{rad2deg} (cons
 double \hyperlink{namespaceblaf_afc65e65ad15ba81dd610ec730e026a7d}{deg2rad} (const double degrees)
 \begin{DoxyCompactList}\small\item\em \-Convert degrees to radians. \end{DoxyCompactList}\item 
 float \hyperlink{namespaceblaf_a28c67e8ed18d1a3d75e4cb46168fd145}{deg2rad} (const float degrees)
-\begin{DoxyCompactList}\small\item\em \-Convert degrees to radians. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\begin{DoxyCompactList}\small\item\em \-Convert degrees to radians. \end{DoxyCompactList}\item 
+bool \hyperlink{namespaceblaf_a1d0fc91d98884a1c7cb36afeb462cde8}{glu\-Invert\-Matrix} (const float m\mbox{[}16\mbox{]}, float inv\-Out\mbox{[}16\mbox{]})
+\begin{DoxyCompactList}\small\item\em \-Computes the inverse of a 4x4 column-\/major matrix. \end{DoxyCompactList}\end{DoxyCompactItemize}
 \subsection*{\-Variables}
 \begin{DoxyCompactItemize}
 \item 
@@ -56,7 +58,21 @@ const float \hyperlink{namespaceblaf_a270acc6912897636164a3a4e43592b56}{f180i} =
 
 \-Convert degrees to radians. 
 
-/param degrees \-The angle value, in degrees, to convert. \hypertarget{namespaceblaf_a3d0a8e7bdb64e1451b5d6c267e895e0a}{\index{blaf@{blaf}!rad2deg@{rad2deg}}
+/param degrees \-The angle value, in degrees, to convert. \hypertarget{namespaceblaf_a1d0fc91d98884a1c7cb36afeb462cde8}{\index{blaf@{blaf}!glu\-Invert\-Matrix@{glu\-Invert\-Matrix}}
+\index{glu\-Invert\-Matrix@{glu\-Invert\-Matrix}!blaf@{blaf}}
+\subsubsection[{glu\-Invert\-Matrix}]{\setlength{\rightskip}{0pt plus 5cm}bool {\bf blaf\-::glu\-Invert\-Matrix} (
+\begin{DoxyParamCaption}
+\item[{const float}]{m\mbox{[}16\mbox{]}, }
+\item[{float}]{inv\-Out\mbox{[}16\mbox{]}}
+\end{DoxyParamCaption}
+)}}\label{namespaceblaf_a1d0fc91d98884a1c7cb36afeb462cde8}
+
+
+\-Computes the inverse of a 4x4 column-\/major matrix. 
+
+/param m \-The matrix to invert. /param inv\-Out \-The matrix where the inverse will be stored,
+
+/returns \-True if the matrix has an inverse, false otherwise. \hypertarget{namespaceblaf_a3d0a8e7bdb64e1451b5d6c267e895e0a}{\index{blaf@{blaf}!rad2deg@{rad2deg}}
 \index{rad2deg@{rad2deg}!blaf@{blaf}}
 \subsubsection[{rad2deg}]{\setlength{\rightskip}{0pt plus 5cm}double {\bf blaf\-::rad2deg} (
 \begin{DoxyParamCaption}

@@ -39,4 +39,13 @@ namespace blaf
 		/param	degrees	The angle value, in degrees, to convert.
 	*/
 	float	deg2rad( const float degrees );
+
+	//!	Computes the inverse of a 4x4 column-major matrix.
+	/*!
+		/param	m	The matrix to invert.
+		/param	invOut	The matrix where the inverse will be stored,
+
+		/returns	True if the matrix has an inverse, false otherwise.
+	*/
+	bool gluInvertMatrix(const float m[16], float invOut[16]);
 }
